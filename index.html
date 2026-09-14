@@ -1,1 +1,7133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<meta name="theme-color" content="#6d28d9">
+<title>NIHS ZOMBIE</title>
 
+<style>
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+  -webkit-tap-highlight-color:transparent;
+}
+
+html,body{
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:#09030f;
+  color:#fff;
+  font-family:Arial,Helvetica,sans-serif;
+  user-select:none;
+  -webkit-user-select:none;
+}
+
+button,input{
+  font-family:inherit;
+}
+
+button{
+  cursor:pointer;
+}
+
+.hidden{
+  display:none!important;
+}
+
+/* =========================
+   SCREENS
+========================= */
+
+.screen{
+  position:fixed;
+  inset:0;
+  z-index:50;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  overflow:hidden;
+
+  background:
+    radial-gradient(
+      circle at 50% 25%,
+      #8b5cf6 0%,
+      #5b21b6 30%,
+      #2e1065 58%,
+      #09030f 100%
+    );
+}
+
+.screen:after{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+
+  background:
+    radial-gradient(circle at 10% 15%,rgba(255,255,255,.08) 0 2px,transparent 3px),
+    radial-gradient(circle at 90% 20%,rgba(255,255,255,.07) 0 2px,transparent 3px),
+    radial-gradient(circle at 20% 85%,rgba(255,255,255,.06) 0 2px,transparent 3px),
+    radial-gradient(circle at 80% 80%,rgba(255,255,255,.05) 0 2px,transparent 3px);
+}
+
+.introBox{
+  position:relative;
+  z-index:2;
+
+  width:min(92vw,720px);
+  max-height:94vh;
+
+  overflow:auto;
+
+  padding:28px;
+
+  text-align:center;
+
+  background:rgba(13,4,24,.88);
+
+  border:2px solid rgba(216,180,254,.25);
+  border-radius:26px;
+
+  box-shadow:
+    0 0 55px rgba(168,85,247,.42),
+    inset 0 0 30px rgba(168,85,247,.05);
+
+  backdrop-filter:blur(10px);
+}
+
+.logo{
+  width:145px;
+  height:145px;
+
+  object-fit:cover;
+
+  border-radius:50%;
+  border:6px solid #c084fc;
+
+  background:#fff;
+
+  padding:5px;
+
+  box-shadow:
+    0 0 0 5px rgba(255,255,255,.07),
+    0 0 45px rgba(168,85,247,.85);
+
+  margin-bottom:18px;
+}
+
+h1{
+  font-size:clamp(30px,7vw,58px);
+  color:#f3e8ff;
+  text-shadow:0 0 18px #a855f7;
+  margin-bottom:8px;
+}
+
+h2{
+  font-size:clamp(22px,5vw,40px);
+  margin-bottom:20px;
+}
+
+.reminder{
+  padding:18px;
+  margin:15px 0 22px;
+
+  text-align:left;
+  line-height:1.65;
+
+  background:rgba(139,92,246,.12);
+
+  border:1px solid rgba(216,180,254,.2);
+  border-radius:17px;
+}
+
+.primaryBtn{
+  width:min(100%,360px);
+
+  padding:15px 24px;
+
+  border:0;
+  border-radius:15px;
+
+  background:linear-gradient(
+    135deg,
+    #a855f7,
+    #6d28d9
+  );
+
+  color:#fff;
+
+  font-size:18px;
+  font-weight:900;
+
+  box-shadow:
+    0 6px 0 #351467,
+    0 0 25px rgba(168,85,247,.35);
+}
+
+.primaryBtn:active{
+  transform:translateY(3px);
+  box-shadow:0 2px 0 #351467;
+}
+
+.nameInput{
+  width:min(100%,500px);
+
+  padding:16px;
+
+  color:#fff;
+  background:#160720;
+
+  border:2px solid #a855f7;
+  border-radius:14px;
+
+  outline:none;
+
+  text-align:center;
+
+  font-size:20px;
+
+  margin-bottom:18px;
+}
+
+.choiceGrid{
+  display:grid;
+
+  grid-template-columns:
+    repeat(auto-fit,minmax(135px,1fr));
+
+  gap:12px;
+
+  max-height:55vh;
+
+  overflow-y:auto;
+
+  padding:4px;
+}
+
+.choiceBtn{
+  min-height:78px;
+
+  padding:12px;
+
+  color:#fff;
+
+  background:
+    linear-gradient(
+      145deg,
+      #7e22ce,
+      #4c1d95
+    );
+
+  border:2px solid rgba(255,255,255,.13);
+  border-radius:15px;
+
+  font-weight:900;
+
+  box-shadow:0 5px 0 #291044;
+}
+
+.choiceBtn:active{
+  transform:translateY(3px);
+  box-shadow:none;
+}
+
+.choiceBtn .icon{
+  display:block;
+  font-size:28px;
+  margin-bottom:5px;
+}
+
+.choiceBtn small{
+  display:block;
+  margin-top:4px;
+  opacity:.7;
+}
+
+.backBtn{
+  margin-top:15px;
+  background:#301044;
+  box-shadow:none;
+}
+
+/* =========================
+   INTRO ANIMATION
+========================= */
+
+#openingTransition{
+  position:absolute;
+  inset:0;
+
+  z-index:5;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  pointer-events:none;
+
+  animation:introFade 2.8s forwards;
+}
+
+.introLogoCircle{
+  width:210px;
+  height:210px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  border-radius:50%;
+
+  border:7px solid #c084fc;
+
+  background:#fff;
+
+  box-shadow:0 0 75px #a855f7;
+
+  animation:logoPop 1.1s ease-out;
+}
+
+.introLogoCircle img{
+  width:180px;
+  height:180px;
+  object-fit:cover;
+  border-radius:50%;
+}
+
+.splash{
+  position:absolute;
+  font-size:42px;
+  opacity:.75;
+
+  animation:splashAnim 1.4s infinite alternate;
+}
+
+.s1{left:12%;top:20%}
+.s2{right:13%;top:25%;animation-delay:.3s}
+.s3{left:20%;bottom:18%;animation-delay:.6s}
+.s4{right:22%;bottom:14%;animation-delay:.9s}
+
+@keyframes logoPop{
+  0%{
+    transform:scale(.25);
+    opacity:0;
+  }
+  70%{
+    transform:scale(1.08);
+    opacity:1;
+  }
+  100%{
+    transform:scale(1);
+  }
+}
+
+@keyframes introFade{
+  0%,75%{opacity:1}
+  100%{opacity:0}
+}
+
+@keyframes splashAnim{
+  from{
+    transform:scale(.8) rotate(-8deg);
+  }
+  to{
+    transform:scale(1.12) rotate(8deg);
+  }
+}
+
+/* =========================
+   GAME
+========================= */
+
+#gameScreen{
+  position:fixed;
+  inset:0;
+
+  z-index:10;
+
+  background:#100718;
+}
+
+#gameCanvas{
+  position:absolute;
+  inset:0;
+
+  width:100%;
+  height:100%;
+
+  display:block;
+
+  touch-action:none;
+}
+
+/* =========================
+   HUD
+========================= */
+
+#hud{
+  position:absolute;
+
+  top:8px;
+  left:8px;
+  right:8px;
+
+  z-index:5;
+
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+
+  pointer-events:none;
+}
+
+.hudBox{
+  padding:8px 11px;
+
+  background:rgba(13,4,22,.82);
+
+  border:1px solid rgba(216,180,254,.3);
+  border-radius:12px;
+
+  font-size:12px;
+  line-height:1.4;
+
+  box-shadow:0 0 15px rgba(0,0,0,.3);
+}
+
+.hpBar{
+  width:170px;
+  height:14px;
+
+  margin-top:4px;
+
+  overflow:hidden;
+
+  border-radius:10px;
+
+  background:#30133e;
+}
+
+#hpFill{
+  width:100%;
+  height:100%;
+
+  background:#22c55e;
+
+  transition:width .2s;
+}
+
+/* =========================
+   CONTROLLERS
+========================= */
+
+#controller{
+  position:absolute;
+  inset:0;
+
+  z-index:8;
+
+  pointer-events:none;
+}
+
+#movePad,
+#aimPad{
+  position:absolute;
+
+  width:145px;
+  height:145px;
+
+  border-radius:50%;
+
+  border:3px solid rgba(255,255,255,.28);
+
+  background:rgba(76,29,149,.27);
+
+  box-shadow:
+    inset 0 0 25px rgba(168,85,247,.3),
+    0 0 20px rgba(0,0,0,.25);
+
+  pointer-events:auto;
+
+  touch-action:none;
+}
+
+#movePad{
+  left:24px;
+  bottom:24px;
+}
+
+#aimPad{
+  right:24px;
+  bottom:24px;
+}
+
+.padCenter{
+  position:absolute;
+
+  left:50%;
+  top:50%;
+
+  width:58px;
+  height:58px;
+
+  transform:translate(-50%,-50%);
+
+  border-radius:50%;
+
+  border:3px solid rgba(255,255,255,.35);
+
+  background:
+    linear-gradient(
+      145deg,
+      #c084fc,
+      #7e22ce
+    );
+
+  box-shadow:0 0 20px rgba(168,85,247,.5);
+}
+
+#aimLabel{
+  position:absolute;
+
+  right:18px;
+  bottom:177px;
+
+  width:155px;
+
+  padding:8px;
+
+  text-align:center;
+
+  background:rgba(20,5,35,.78);
+
+  border:1px solid rgba(216,180,254,.25);
+  border-radius:11px;
+
+  font-size:11px;
+  font-weight:900;
+
+  pointer-events:none;
+}
+
+#aimLabel small{
+  display:block;
+
+  margin-top:3px;
+
+  opacity:.7;
+
+  font-size:8px;
+}
+
+#controllerButtons{
+  position:absolute;
+
+  right:180px;
+  bottom:28px;
+
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+
+  pointer-events:auto;
+}
+
+.controlBtn{
+  min-width:105px;
+
+  padding:11px 14px;
+
+  color:#fff;
+
+  background:
+    linear-gradient(
+      145deg,
+      #7e22ce,
+      #4c1d95
+    );
+
+  border:2px solid rgba(255,255,255,.13);
+  border-radius:13px;
+
+  font-weight:900;
+
+  box-shadow:0 4px 0 #291044;
+}
+
+.controlBtn:active{
+  transform:translateY(3px);
+  box-shadow:none;
+}
+
+/* =========================
+   SHOP
+========================= */
+
+#shopPanel{
+  position:absolute;
+
+  right:178px;
+  bottom:158px;
+
+  width:min(310px,70vw);
+  max-height:60vh;
+
+  overflow:auto;
+
+  padding:14px;
+
+  background:rgba(15,5,25,.97);
+
+  border:2px solid #a855f7;
+  border-radius:18px;
+
+  pointer-events:auto;
+}
+
+#shopPanel h3{
+  text-align:center;
+  margin-bottom:9px;
+}
+
+.shopItem{
+  width:100%;
+
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+
+  gap:8px;
+
+  padding:10px;
+  margin:7px 0;
+
+  color:#fff;
+
+  background:#291044;
+
+  border:0;
+  border-radius:12px;
+
+  text-align:left;
+
+  font-weight:800;
+}
+
+.shopItem span:last-child{
+  color:#fcd34d;
+}
+
+/* =========================
+   MESSAGE
+========================= */
+
+#message{
+  position:absolute;
+
+  left:50%;
+  top:21%;
+
+  transform:translateX(-50%);
+
+  z-index:6;
+
+  font-size:clamp(22px,5vw,42px);
+
+  font-weight:900;
+
+  text-align:center;
+
+  text-shadow:0 3px 10px #000;
+
+  pointer-events:none;
+
+  opacity:0;
+
+  transition:.2s;
+}
+
+/* =========================
+   RESULTS
+========================= */
+
+#gameOver,
+#winScreen{
+  position:absolute;
+  inset:0;
+
+  z-index:20;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  background:rgba(8,2,12,.93);
+}
+
+.resultBox{
+  width:min(92vw,650px);
+  max-height:94vh;
+
+  overflow:auto;
+
+  padding:20px;
+
+  text-align:center;
+
+  background:#180723;
+
+  border:2px solid #a855f7;
+  border-radius:23px;
+
+  box-shadow:0 0 45px rgba(168,85,247,.35);
+}
+
+#gameOver video{
+  width:min(100%,500px);
+  max-height:44vh;
+
+  display:block;
+
+  margin:0 auto 12px;
+
+  background:#000;
+
+  border-radius:15px;
+}
+
+.resultStats{
+  margin:12px 0 18px;
+  line-height:1.8;
+}
+
+.resultButtons{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  justify-content:center;
+}
+
+.smallBtn{
+  padding:12px 18px;
+
+  color:#fff;
+
+  background:#6d28d9;
+
+  border:0;
+  border-radius:12px;
+
+  font-weight:900;
+}
+
+#skipVideo{
+  background:#35104e;
+}
+
+/* =========================
+   SMALL SCREEN
+========================= */
+
+@media(max-width:700px){
+
+  .introBox{
+    padding:19px;
+    border-radius:20px;
+  }
+
+  .logo{
+    width:105px;
+    height:105px;
+  }
+
+  .choiceGrid{
+    grid-template-columns:repeat(2,1fr);
+    max-height:48vh;
+  }
+
+  #movePad,
+  #aimPad{
+    width:130px;
+    height:130px;
+  }
+
+  #movePad{
+    left:11px;
+    bottom:11px;
+  }
+
+  #aimPad{
+    right:11px;
+    bottom:11px;
+  }
+
+  .padCenter{
+    width:52px;
+    height:52px;
+  }
+
+  #aimLabel{
+    right:7px;
+    bottom:149px;
+    width:138px;
+  }
+
+  #controllerButtons{
+    right:148px;
+    bottom:13px;
+  }
+
+  .controlBtn{
+    min-width:82px;
+    padding:9px 8px;
+    font-size:10px;
+  }
+
+  #shopPanel{
+    right:143px;
+    bottom:124px;
+    width:190px;
+  }
+
+  .hudBox{
+    font-size:9px;
+    padding:6px 7px;
+  }
+
+  .hpBar{
+    width:115px;
+    height:11px;
+  }
+}
+
+@media(min-width:900px){
+
+  #movePad,
+  #aimPad{
+    width:160px;
+    height:160px;
+  }
+
+  #movePad{
+    left:35px;
+    bottom:30px;
+  }
+
+  #aimPad{
+    right:35px;
+    bottom:30px;
+  }
+
+  #aimLabel{
+    right:30px;
+    bottom:223px;
+  }
+
+  #controllerButtons{
+    right:225px;
+    bottom:34px;
+  }
+
+  #shopPanel{
+    right:220px;
+    bottom:170px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<!-- ========================================================
+     OPENING
+========================================================= -->
+
+<section id="opening" class="screen">
+
+  <div id="openingTransition">
+
+    <div class="introLogoCircle">
+      <img src="nihs-logo.png" alt="NIHS Logo">
+    </div>
+
+    <div class="splash s1">🩸</div>
+    <div class="splash s2">🩸</div>
+    <div class="splash s3">🩸</div>
+    <div class="splash s4">🩸</div>
+
+  </div>
+
+  <div class="introBox">
+
+    <img
+      src="nihs-logo.png"
+      class="logo"
+      alt="NIHS Logo">
+
+    <h1>MGA PAHINUMDOM</h1>
+
+    <div class="reminder">
+
+      <p>🧟 Ayaw pagduol dayon sa zombie.</p>
+      <p>🎯 Aim ug tarong bago moatake.</p>
+      <p>🪙 Tiguma ang coins para sa SHOP.</p>
+      <p>❤️ Bantayi imong HP.</p>
+      <p>😂 DULA RA NI!</p>
+
+    </div>
+
+    <button
+      class="primaryBtn"
+      onclick="showCredit()">
+
+      NEXT ➜
+
+    </button>
+
+  </div>
+</section>
+
+<!-- ========================================================
+     CREDIT
+========================================================= -->
+
+<section
+  id="creditScreen"
+  class="screen hidden">
+
+  <div class="introBox">
+
+    <h2>
+      ANG LARONG ITO AY GI-HIMO NI
+    </h2>
+
+    <h1>
+      JOHN REYNARD
+    </h1>
+
+    <p style="margin:15px 0 25px;opacity:.7">
+      NIHS ZOMBIE
+    </p>
+
+    <button
+      class="primaryBtn"
+      onclick="showTitle()">
+
+      NEXT ➜
+
+    </button>
+
+  </div>
+
+</section>
+
+<!-- ========================================================
+     TITLE
+========================================================= -->
+
+<section
+  id="titleScreen"
+  class="screen hidden">
+
+  <div class="introBox">
+
+    <img
+      src="nihs-logo.png"
+      class="logo"
+      alt="NIHS Logo">
+
+    <h1>NIHS</h1>
+
+    <h2>NIHS ZOMBIE</h2>
+
+    <button
+      class="primaryBtn"
+      onclick="showName()">
+
+      START
+
+    </button>
+
+  </div>
+
+</section>
+
+<!-- ========================================================
+     NAME
+========================================================= -->
+
+<section
+  id="nameScreen"
+  class="screen hidden">
+
+  <div class="introBox">
+
+    <h2>
+      ISULAT ANG IMONG NGALAN
+    </h2>
+
+    <input
+      id="nameInput"
+      class="nameInput"
+      maxlength="24"
+      placeholder="Imong Ngalan"
+      autocomplete="off">
+
+    <br>
+
+    <button
+      class="primaryBtn"
+      onclick="saveName()">
+
+      SUNOD ➜
+
+    </button>
+
+  </div>
+
+</section>
+
+<!-- ========================================================
+     GRADE
+========================================================= -->
+
+<section
+  id="gradeScreen"
+  class="screen hidden">
+
+  <div class="introBox">
+
+    <h2>
+      UNSANG GRADE KA?
+    </h2>
+
+    <div class="choiceGrid">
+
+      <button
+        class="choiceBtn"
+        onclick="selectGrade(7)">
+        GRADE 7
+      </button>
+
+      <button
+        class="choiceBtn"
+        onclick="selectGrade(8)">
+        GRADE 8
+      </button>
+
+      <button
+        class="choiceBtn"
+        onclick="selectGrade(9)">
+        GRADE 9
+      </button>
+
+      <button
+        class="choiceBtn"
+        onclick="selectGrade(10)">
+        GRADE 10
+      </button>
+
+      <button
+        class="choiceBtn"
+        onclick="selectGrade(11)">
+        GRADE 11
+      </button>
+
+      <button
+        class="choiceBtn"
+        onclick="selectGrade(12)">
+        GRADE 12
+      </button>
+
+    </div>
+
+    <button
+      class="choiceBtn backBtn"
+      onclick="showName()">
+
+      ← BALIK
+
+    </button>
+
+  </div>
+
+</section>
+
+<!-- ========================================================
+     ROLE
+========================================================= -->
+
+<section
+  id="roleScreen"
+  class="screen hidden">
+
+  <div class="introBox">
+
+    <h2>
+      UNSAY IMONG ROLE?
+    </h2>
+
+    <div class="choiceGrid">
+
+      <button
+        class="choiceBtn"
+        onclick="selectRole('student')">
+
+        <span class="icon">🧑‍🎓</span>
+
+        ESTUDYANTE
+
+      </button>
+
+      <button
+        class="choiceBtn"
+        onclick="selectRole('teacher')">
+
+        <span class="icon">👨‍🏫</span>
+
+        TEACHER
+
+      </button>
+
+    </div>
+
+    <button
+      class="choiceBtn backBtn"
+      onclick="showScreen('gradeScreen')">
+
+      ← BALIK
+
+    </button>
+
+  </div>
+
+</section>
+
+<!-- ========================================================
+     GENDER
+========================================================= -->
+
+<section
+  id="genderScreen"
+  class="screen hidden">
+
+  <div class="introBox">
+
+    <h2>
+      UNSAY IMONG GENDER?
+    </h2>
+
+    <div class="choiceGrid">
+
+      <button
+        class="choiceBtn"
+        onclick="selectGender('male')">
+
+        <span class="icon">👦</span>
+
+        LALAKI
+
+      </button>
+
+      <button
+        class="choiceBtn"
+        onclick="selectGender('female')">
+
+        <span class="icon">👧</span>
+
+        BABAE
+
+      </button>
+
+    </div>
+
+    <button
+      class="choiceBtn backBtn"
+      onclick="showScreen('roleScreen')">
+
+      ← BALIK
+
+    </button>
+
+  </div>
+
+</section>
+
+<!-- ========================================================
+     CHARACTER
+========================================================= -->
+
+<section
+  id="characterScreen"
+  class="screen hidden">
+
+  <div class="introBox">
+
+    <h2 id="characterTitle">
+      PILI OG IMONG CHARACTER
+    </h2>
+
+    <div
+      id="characterGrid"
+      class="choiceGrid">
+    </div>
+
+    <button
+      class="choiceBtn backBtn"
+      onclick="showScreen('genderScreen')">
+
+      ← BALIK
+
+    </button>
+
+  </div>
+
+</section>
+
+<!-- ========================================================
+     SIDE
+========================================================= -->
+
+<section
+  id="sideScreen"
+  class="screen hidden">
+
+  <div class="introBox">
+
+    <h2>
+      PILI OG SIDE
+    </h2>
+
+    <div class="choiceGrid">
+
+      <button
+        class="choiceBtn"
+        onclick="selectSide('human')">
+
+        <span class="icon">🧑‍🎓</span>
+
+        TAO
+
+        <small>
+          Weapons vs Zombies
+        </small>
+
+      </button>
+
+      <button
+        class="choiceBtn"
+        onclick="selectSide('zombie')">
+
+        <span class="icon">🧟</span>
+
+        ZOMBIE
+
+        <small>
+          Bite vs Students
+        </small>
+
+      </button>
+
+    </div>
+
+    <button
+      class="choiceBtn backBtn"
+      onclick="showScreen('characterScreen')">
+
+      ← BALIK
+
+    </button>
+
+  </div>
+
+</section>
+
+<!-- ========================================================
+     GAME
+========================================================= -->
+
+<section
+  id="gameScreen"
+  class="hidden">
+
+  <canvas id="gameCanvas"></canvas>
+
+  <div id="hud">
+
+    <div class="hudBox">
+
+      <b id="playerNameHUD">
+        PLAYER
+      </b>
+
+      <br>
+
+      <span id="modeHUD">
+        TAO
+      </span>
+
+      •
+
+      <span id="gradeHUD">
+        GRADE 7
+      </span>
+
+      <br>
+
+      <span id="characterHUD">
+        Cyber
+      </span>
+
+      <br>
+
+      ❤️
+      <span id="hpText">
+        100
+      </span>
+      /100
+
+      <div class="hpBar">
+        <div id="hpFill"></div>
+      </div>
+
+    </div>
+
+    <div
+      class="hudBox"
+      style="text-align:right">
+
+      ROOM:
+      <b id="roomHUD">1</b>
+
+      <br>
+
+      SCORE:
+      <b id="scoreHUD">0</b>
+
+      <br>
+
+      🪙
+      <b id="coinsHUD">0</b>
+
+      <br>
+
+      <span id="enemyHUD">
+        ENEMIES: 0
+      </span>
+
+    </div>
+
+  </div>
+
+  <div id="message"></div>
+
+  <!-- CONTROLLERS -->
+
+  <div id="controller">
+
+    <div id="movePad">
+
+      <div
+        id="moveStick"
+        class="padCenter">
+      </div>
+
+    </div>
+
+    <div id="aimLabel">
+
+      360° AIM +
+      <span id="attackLabel">
+        THROW
+      </span>
+
+      <small>
+        DRAG → AIM • RELEASE → ATTACK
+      </small>
+
+    </div>
+
+    <div id="aimPad">
+
+      <div
+        id="aimStick"
+        class="padCenter">
+      </div>
+
+    </div>
+
+    <div id="controllerButtons">
+
+      <button
+        id="nextWeaponBtn"
+        class="controlBtn"
+        onclick="nextWeapon()">
+
+        🔄 NEXT
+
+      </button>
+
+      <button
+        id="shopBtn"
+        class="controlBtn"
+        onclick="toggleShop()">
+
+        🛒 SHOP
+
+      </button>
+
+    </div>
+
+    <div
+      id="shopPanel"
+      class="hidden">
+
+      <h3>
+        🛒 SCHOOL SHOP
+      </h3>
+
+      <div id="shopItems"></div>
+
+      <button
+        class="controlBtn"
+        style="width:100%"
+        onclick="toggleShop()">
+
+        CLOSE
+
+      </button>
+
+    </div>
+
+  </div>
+
+  <!-- GAME OVER -->
+
+  <div
+    id="gameOver"
+    class="hidden">
+
+    <div class="resultBox">
+
+      <h1>
+        💀 GAME OVER
+      </h1>
+
+      <video
+        id="gameOverVideo"
+        playsinline>
+
+        <source
+          src="relapse.mp4"
+          type="video/mp4">
+
+      </video>
+
+      <button
+        id="skipVideo"
+        class="smallBtn"
+        onclick="skipVideo()">
+
+        SKIP VIDEO
+
+      </button>
+
+      <div
+        id="gameOverStats"
+        class="resultStats hidden">
+      </div>
+
+      <div
+        id="gameOverButtons"
+        class="resultButtons hidden">
+
+        <button
+          class="smallBtn"
+          onclick="restartGame()">
+
+          🔄 PLAY AGAIN
+
+        </button>
+
+        <button
+          class="smallBtn"
+          onclick="mainMenu()">
+
+          🏠 MAIN MENU
+
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- WIN -->
+
+  <div
+    id="winScreen"
+    class="hidden">
+
+    <div class="resultBox">
+
+      <h1>
+        🏆 YOU WIN!
+      </h1>
+
+      <p style="margin:10px 0">
+        Nalampasan nimo ang room!
+      </p>
+
+      <div
+        id="winStats"
+        class="resultStats">
+      </div>
+
+      <div class="resultButtons">
+
+        <button
+          class="smallBtn"
+          onclick="nextRoom()">
+
+          ➡️ NEXT ROOM
+
+        </button>
+
+        <button
+          class="smallBtn"
+          onclick="mainMenu()">
+
+          🏠 MAIN MENU
+
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+<script>
+"use strict";
+
+/* =========================================================
+   BASIC DOM
+========================================================= */
+
+const $=id=>document.getElementById(id);
+
+function showScreen(id){
+
+  document
+    .querySelectorAll(".screen")
+    .forEach(el=>{
+      el.classList.add("hidden");
+    });
+
+  const target=$(id);
+
+  if(target){
+    target.classList.remove("hidden");
+  }
+}
+
+/* =========================================================
+   AUDIO
+========================================================= */
+
+let audioCtx=null;
+
+function getAudio(){
+
+  if(!audioCtx){
+
+    const AC=
+      window.AudioContext||
+      window.webkitAudioContext;
+
+    if(AC){
+
+      audioCtx=
+        new AC();
+
+    }
+  }
+
+  if(
+    audioCtx &&
+    audioCtx.state==="suspended"
+  ){
+
+    audioCtx
+      .resume()
+      .catch(()=>{});
+
+  }
+
+  return audioCtx;
+}
+
+function sound(type){
+
+  const ac=getAudio();
+
+  if(!ac) return;
+
+  const now=ac.currentTime;
+
+  const sounds={
+
+    button:[620,.07,"sine"],
+    start:[440,.12,"sine"],
+    throw:[190,.16,"sawtooth"],
+    hit:[110,.12,"square"],
+    hurt:[90,.18,"sawtooth"],
+    coin:[900,.10,"sine"],
+    room:[520,.20,"triangle"],
+    clear:[650,.35,"sine"],
+    gameover:[120,.60,"sawtooth"],
+    bite:[75,.25,"square"],
+    boss:[70,.40,"sawtooth"]
+
+  };
+
+  const s=
+    sounds[type]||
+    sounds.button;
+
+  const osc=
+    ac.createOscillator();
+
+  const gain=
+    ac.createGain();
+
+  osc.type=s[2];
+
+  osc.frequency.setValueAtTime(
+    s[0],
+    now
+  );
+
+  if(type==="throw"){
+
+    osc.frequency.exponentialRampToValueAtTime(
+      70,
+      now+.16
+    );
+
+  }
+
+  if(type==="hit"){
+
+    osc.frequency.exponentialRampToValueAtTime(
+      45,
+      now+.12
+    );
+
+  }
+
+  if(type==="hurt"){
+
+    osc.frequency.exponentialRampToValueAtTime(
+      45,
+      now+.18
+    );
+
+  }
+
+  if(type==="coin"){
+
+    osc.frequency.exponentialRampToValueAtTime(
+      1300,
+      now+.10
+    );
+
+  }
+
+  if(type==="clear"){
+
+    osc.frequency.setValueAtTime(
+      500,
+      now
+    );
+
+    osc.frequency.exponentialRampToValueAtTime(
+      1000,
+      now+.35
+    );
+
+  }
+
+  gain.gain.setValueAtTime(
+    .0001,
+    now
+  );
+
+  gain.gain.exponentialRampToValueAtTime(
+    .12,
+    now+.01
+  );
+
+  gain.gain.exponentialRampToValueAtTime(
+    .0001,
+    now+s[1]
+  );
+
+  osc.connect(gain);
+  gain.connect(ac.destination);
+
+  osc.start(now);
+  osc.stop(now+s[1]+.02);
+}
+
+/* =========================================================
+   YAWA
+========================================================= */
+
+const yawaAudio=
+  new Audio("yawa.mp3");
+
+yawaAudio.preload="auto";
+
+function playYawa(){
+
+  try{
+
+    yawaAudio.currentTime=0;
+
+    yawaAudio
+      .play()
+      .catch(()=>{});
+
+  }catch(e){}
+
+}
+
+/* =========================================================
+   ZOMBIE VOICE
+========================================================= */
+
+function zombieVoice(){
+
+  const ac=getAudio();
+
+  if(!ac) return;
+
+  const now=ac.currentTime;
+
+  const osc=
+    ac.createOscillator();
+
+  const filter=
+    ac.createBiquadFilter();
+
+  const gain=
+    ac.createGain();
+
+  osc.type="sawtooth";
+
+  osc.frequency.setValueAtTime(
+    145,
+    now
+  );
+
+  osc.frequency.exponentialRampToValueAtTime(
+    62,
+    now+.4
+  );
+
+  filter.type="lowpass";
+  filter.frequency.value=850;
+
+  gain.gain.setValueAtTime(
+    .0001,
+    now
+  );
+
+  gain.gain.exponentialRampToValueAtTime(
+    .09,
+    now+.03
+  );
+
+  gain.gain.exponentialRampToValueAtTime(
+    .0001,
+    now+.45
+  );
+
+  osc.connect(filter);
+  filter.connect(gain);
+  gain.connect(ac.destination);
+
+  osc.start(now);
+  osc.stop(now+.48);
+}
+
+/* =========================================================
+   MENU FLOW
+========================================================= */
+
+function showCredit(){
+
+  sound("button");
+
+  showScreen(
+    "creditScreen"
+  );
+
+}
+
+function showTitle(){
+
+  sound("button");
+
+  showScreen(
+    "titleScreen"
+  );
+
+}
+
+function showName(){
+
+  sound("button");
+
+  showScreen(
+    "nameScreen"
+  );
+
+  setTimeout(
+    ()=>{
+      $("nameInput").focus();
+    },
+    100
+  );
+
+}
+
+function saveName(){
+
+  let name=
+    $("nameInput")
+      .value
+      .trim();
+
+  if(!name){
+    name="PLAYER";
+  }
+
+  player.name=name;
+
+  sound("button");
+
+  showScreen(
+    "gradeScreen"
+  );
+
+}
+
+/* =========================================================
+   CHARACTER DATA
+========================================================= */
+
+const characterRoster={
+
+  7:{
+    male:[
+      "Cyber",
+      "Steve basmayor",
+      "C"
+    ],
+    female:[
+      "A",
+      "J",
+      "D"
+    ]
+  },
+
+  8:{
+    male:[
+      "Nygien",
+      "R",
+      "H"
+    ],
+    female:[
+      "Xyh",
+      "ASH",
+      "JORLONG",
+      "MITCH KIER",
+      "C",
+      "D"
+    ]
+  },
+
+  9:{
+    male:[
+      "R",
+      "D",
+      "J"
+    ],
+    female:[
+      "H",
+      "V",
+      "Y"
+    ]
+  },
+
+  10:{
+    male:[
+      "John Reynard",
+      "Kenth Clark",
+      "Carl James",
+      "Rhamces",
+      "Archel",
+      "Archgel",
+      "SHR",
+      "Rhey",
+      "Jester",
+      "Elm",
+      "Rex",
+      "Julius",
+      "Johnson",
+      "Rencey"
+    ],
+
+    female:[
+      "A",
+      "M",
+      "D",
+      "Y",
+      "S"
+    ]
+  },
+
+  11:{
+    male:[
+      "A",
+      "C",
+      "R"
+    ],
+    female:[
+      "M",
+      "R",
+      "D"
+    ]
+  },
+
+  12:{
+    male:[
+      "S",
+      "A",
+      "T"
+    ],
+    female:[
+      "I",
+      "P",
+      "J"
+    ]
+  }
+
+};
+
+/* =========================================================
+   UNIQUE COLORS
+========================================================= */
+
+const characterStyles=[
+
+  {
+    shirt:"#ef4444",
+    pants:"#1e3a8a",
+    hair:"#111827",
+    accent:"#facc15"
+  },
+
+  {
+    shirt:"#3b82f6",
+    pants:"#172554",
+    hair:"#3f2a1d",
+    accent:"#22c55e"
+  },
+
+  {
+    shirt:"#22c55e",
+    pants:"#3f3f46",
+    hair:"#111827",
+    accent:"#f97316"
+  },
+
+  {
+    shirt:"#f59e0b",
+    pants:"#312e81",
+    hair:"#713f12",
+    accent:"#ec4899"
+  },
+
+  {
+    shirt:"#ec4899",
+    pants:"#334155",
+    hair:"#1f2937",
+    accent:"#06b6d4"
+  },
+
+  {
+    shirt:"#06b6d4",
+    pants:"#164e63",
+    hair:"#451a03",
+    accent:"#a855f7"
+  },
+
+  {
+    shirt:"#8b5cf6",
+    pants:"#27272a",
+    hair:"#18181b",
+    accent:"#facc15"
+  },
+
+  {
+    shirt:"#f97316",
+    pants:"#172554",
+    hair:"#292524",
+    accent:"#14b8a6"
+  },
+
+  {
+    shirt:"#14b8a6",
+    pants:"#3f3f46",
+    hair:"#78350f",
+    accent:"#f43f5e"
+  },
+
+  {
+    shirt:"#f43f5e",
+    pants:"#1e293b",
+    hair:"#18181b",
+    accent:"#38bdf8"
+  },
+
+  {
+    shirt:"#84cc16",
+    pants:"#365314",
+    hair:"#422006",
+    accent:"#e879f9"
+  },
+
+  {
+    shirt:"#a855f7",
+    pants:"#172554",
+    hair:"#292524",
+    accent:"#fb7185"
+  },
+
+  {
+    shirt:"#eab308",
+    pants:"#713f12",
+    hair:"#111827",
+    accent:"#60a5fa"
+  },
+
+  {
+    shirt:"#0ea5e9",
+    pants:"#312e81",
+    hair:"#431407",
+    accent:"#f97316"
+  },
+
+  {
+    shirt:"#d946ef",
+    pants:"#334155",
+    hair:"#18181b",
+    accent:"#22c55e"
+  },
+
+  {
+    shirt:"#64748b",
+    pants:"#1e1b4b",
+    hair:"#78350f",
+    accent:"#facc15"
+  },
+
+  {
+    shirt:"#fb7185",
+    pants:"#164e63",
+    hair:"#27272a",
+    accent:"#8b5cf6"
+  },
+
+  {
+    shirt:"#38bdf8",
+    pants:"#3f3f46",
+    hair:"#451a03",
+    accent:"#f43f5e"
+  },
+
+  {
+    shirt:"#c084fc",
+    pants:"#172554",
+    hair:"#18181b",
+    accent:"#34d399"
+  },
+
+  {
+    shirt:"#fb923c",
+    pants:"#1e293b",
+    hair:"#422006",
+    accent:"#a78bfa"
+  }
+
+];
+
+function styleForCharacter(name){
+
+  let hash=0;
+
+  for(
+    let i=0;
+    i<name.length;
+    i++
+  ){
+
+    hash=
+      ((hash<<5)-hash)+
+      name.charCodeAt(i);
+
+    hash|=0;
+
+  }
+
+  return characterStyles[
+    Math.abs(hash)%
+    characterStyles.length
+  ];
+}
+
+/* =========================================================
+   PLAYER
+========================================================= */
+
+const MAX_HP=100;
+
+const player={
+
+  name:"PLAYER",
+
+  grade:7,
+
+  role:"student",
+
+  gender:"male",
+
+  character:"Cyber",
+
+  side:"human",
+
+  x:0,
+  y:0,
+
+  radius:18,
+
+  hp:MAX_HP,
+
+  speed:210,
+
+  angle:0,
+
+  score:0,
+
+  coins:0,
+
+  room:1,
+
+  weaponIndex:0,
+
+  style:styleForCharacter("Cyber")
+
+};
+
+/* =========================================================
+   WEAPONS
+========================================================= */
+
+const weapons=[
+
+  {
+    name:"Chalk",
+    icon:"🖍️",
+    cost:0,
+    power:20,
+    cooldown:500
+  },
+
+  {
+    name:"Sapatos",
+    icon:"👟",
+    cost:25,
+    power:24,
+    cooldown:560
+  },
+
+  {
+    name:"Bato",
+    icon:"🪨",
+    cost:45,
+    power:30,
+    cooldown:620
+  },
+
+  {
+    name:"Libro",
+    icon:"📖",
+    cost:65,
+    power:34,
+    cooldown:680
+  },
+
+  {
+    name:"Laptop",
+    icon:"💻",
+    cost:90,
+    power:40,
+    cooldown:740
+  },
+
+  {
+    name:"Upuan",
+    icon:"🪑",
+    cost:120,
+    power:46,
+    cooldown:800
+  },
+
+  {
+    name:"Backpack",
+    icon:"🎒",
+    cost:150,
+    power:50,
+    cooldown:840
+  },
+
+  {
+    name:"Silhig",
+    icon:"🧹",
+    cost:190,
+    power:55,
+    cooldown:870
+  },
+
+  {
+    name:"TV",
+    icon:"📺",
+    cost:250,
+    power:62,
+    cooldown:920
+  },
+
+  {
+    name:"Water Bottle",
+    icon:"🧴",
+    cost:300,
+    power:68,
+    cooldown:950
+  },
+
+  {
+    name:"School Bell",
+    icon:"🔔",
+    cost:450,
+    power:85,
+    cooldown:1050
+  },
+
+  {
+    name:"Megaphone",
+    icon:"📢",
+    cost:500,
+    power:78,
+    cooldown:900
+  },
+
+  {
+    name:"Exam Paper",
+    icon:"📄",
+    cost:600,
+    power:92,
+    cooldown:980
+  },
+
+  {
+    name:"Red Pen",
+    icon:"🖊️",
+    cost:750,
+    power:100,
+    cooldown:1050
+  }
+
+];
+
+let unlockedWeapons=[
+  true
+];
+
+/* =========================================================
+   CANVAS
+========================================================= */
+
+const canvas=
+  $("gameCanvas");
+
+const ctx=
+  canvas.getContext("2d");
+
+let W=0;
+let H=0;
+
+function resizeCanvas(){
+
+  const dpr=
+    Math.min(
+      window.devicePixelRatio||1,
+      2
+    );
+
+  W=window.innerWidth;
+  H=window.innerHeight;
+
+  canvas.width=
+    Math.floor(W*dpr);
+
+  canvas.height=
+    Math.floor(H*dpr);
+
+  canvas.style.width=
+    W+"px";
+
+  canvas.style.height=
+    H+"px";
+
+  ctx.setTransform(
+    dpr,
+    0,
+    0,
+    dpr,
+    0,
+    0
+  );
+}
+
+window.addEventListener(
+  "resize",
+  resizeCanvas
+);
+
+resizeCanvas();
+
+/* =========================================================
+   GAME STATE
+========================================================= */
+
+let zombies=[];
+let students=[];
+let alliedZombies=[];
+let projectiles=[];
+let obstacles=[];
+
+let gameRunning=false;
+let gameEnded=false;
+
+let lastTime=0;
+let attackTimer=0;
+
+let roomKills=0;
+
+let moveInput={
+  x:0,
+  y:0
+};
+
+let aim={
+  x:1,
+  y:0
+};
+
+let movePointer=null;
+let aimPointer=null;
+
+/* =========================================================
+   UTILITY
+========================================================= */
+
+function random(min,max){
+  return Math.random()*(max-min)+min;
+}
+
+function clamp(v,min,max){
+  return Math.max(
+    min,
+    Math.min(max,v)
+  );
+}
+
+function distance(a,b){
+  return Math.hypot(
+    a.x-b.x,
+    a.y-b.y
+  );
+}
+
+function rectCircleCollision(
+  circle,
+  rect
+){
+
+  const closestX=
+    clamp(
+      circle.x,
+      rect.x,
+      rect.x+rect.w
+    );
+
+  const closestY=
+    clamp(
+      circle.y,
+      rect.y,
+      rect.y+rect.h
+    );
+
+  const dx=
+    circle.x-closestX;
+
+  const dy=
+    circle.y-closestY;
+
+  return(
+    dx*dx+
+    dy*dy
+    <
+    circle.radius*
+    circle.radius
+  );
+}
+
+function collidesWithObstacle(
+  x,
+  y,
+  radius
+){
+
+  const circle={
+    x,
+    y,
+    radius
+  };
+
+  return obstacles.some(
+    rect=>
+      rectCircleCollision(
+        circle,
+        rect
+      )
+  );
+}
+
+function positionFree(
+  x,
+  y,
+  radius
+){
+
+  if(
+    x-radius<20 ||
+    x+radius>W-20 ||
+    y-radius<68 ||
+    y+radius>H-20
+  ){
+    return false;
+  }
+
+  return !collidesWithObstacle(
+    x,
+    y,
+    radius
+  );
+}
+
+function moveEntity(
+  entity,
+  dx,
+  dy
+){
+
+  const oldX=entity.x;
+  const oldY=entity.y;
+
+  const nx=
+    entity.x+dx;
+
+  if(
+    positionFree(
+      nx,
+      entity.y,
+      entity.radius
+    )
+  ){
+
+    entity.x=nx;
+
+  }else{
+
+    entity.x=oldX;
+
+  }
+
+  const ny=
+    entity.y+dy;
+
+  if(
+    positionFree(
+      entity.x,
+      ny,
+      entity.radius
+    )
+  ){
+
+    entity.y=ny;
+
+  }else{
+
+    entity.y=oldY;
+
+  }
+}
+
+/* =========================================================
+   OBSTACLE CREATION
+========================================================= */
+
+function addObstacle(
+  x,
+  y,
+  w,
+  h,
+  type,
+  extra={}
+){
+
+  obstacles.push({
+    x,
+    y,
+    w,
+    h,
+    type,
+    ...extra
+  });
+
+}
+
+/* =========================================================
+   CLASSROOM LAYOUT
+========================================================= */
+
+function buildRoom(){
+
+  obstacles=[];
+
+  const top=74;
+
+  /*
+    WALL-SIDE FURNITURE
+  */
+
+  addObstacle(
+    22,
+    top+5,
+    110,
+    36,
+    "cabinet"
+  );
+
+  addObstacle(
+    W-132,
+    top+5,
+    110,
+    36,
+    "cabinet"
+  );
+
+  /*
+    TEACHER AREA
+  */
+
+  addObstacle(
+    W/2-78,
+    top+5,
+    156,
+    40,
+    "teacher"
+  );
+
+  /*
+    BOOKSHELF
+  */
+
+  addObstacle(
+    25,
+    H-145,
+    90,
+    42,
+    "shelf"
+  );
+
+  /*
+    TRASH / BOXES
+  */
+
+  addObstacle(
+    W-105,
+    H-140,
+    45,
+    45,
+    "boxes"
+  );
+
+  /*
+    DESK PATTERNS
+  */
+
+  const deskW=70;
+  const deskH=31;
+
+  const positions=[];
+
+  if(player.room===1){
+
+    for(let row=0;row<2;row++){
+
+      for(let col=0;col<4;col++){
+
+        positions.push({
+
+          x:
+            W/2-
+            155+
+            col*103,
+
+          y:
+            175+
+            row*110
+
+        });
+
+      }
+
+    }
+
+  }else if(player.room===2){
+
+    for(let row=0;row<3;row++){
+
+      for(let col=0;col<4;col++){
+
+        positions.push({
+
+          x:
+            W/2-
+            155+
+            col*103,
+
+          y:
+            145+
+            row*105
+
+        });
+
+      }
+
+    }
+
+  }else if(player.room===3){
+
+    /*
+      U-SHAPED ARRANGEMENT
+    */
+
+    for(let col=0;col<4;col++){
+
+      positions.push({
+        x:
+          W/2-
+          155+
+          col*103,
+
+        y:150
+      });
+
+    }
+
+    for(let row=0;row<2;row++){
+
+      positions.push({
+        x:W/2-155,
+        y:260+row*105
+      });
+
+      positions.push({
+        x:W/2+155-70,
+        y:260+row*105
+      });
+
+    }
+
+  }else if(player.room===4){
+
+    for(let row=0;row<3;row++){
+
+      for(let col=0;col<5;col++){
+
+        if(
+          row===1 &&
+          col===2
+        ){
+          continue;
+        }
+
+        positions.push({
+
+          x:
+            W/2-
+            207+
+            col*103,
+
+          y:
+            140+
+            row*100
+
+        });
+
+      }
+
+    }
+
+  }else{
+
+    /*
+      BOSS / LATE ROOMS:
+      More furniture but central area stays open.
+    */
+
+    for(let col=0;col<5;col++){
+
+      positions.push({
+
+        x:
+          W/2-
+          207+
+          col*103,
+
+        y:145
+
+      });
+
+    }
+
+    for(let col=0;col<5;col++){
+
+      positions.push({
+
+        x:
+          W/2-
+          207+
+          col*103,
+
+        y:H-180
+
+      });
+
+    }
+
+  }
+
+  positions.forEach((p,index)=>{
+
+    if(
+      p.x>135 &&
+      p.x+deskW<W-135 &&
+      p.y>115 &&
+      p.y+deskH<H-90
+    ){
+
+      addObstacle(
+        p.x,
+        p.y,
+        deskW,
+        deskH,
+        "desk",
+        {
+          seat:index%2===0
+        }
+      );
+
+    }
+
+  });
+
+  /*
+    EXTRA COMPUTER TABLE
+  */
+
+  if(player.room>=2){
+
+    addObstacle(
+      130,
+      H-85,
+      130,
+      30,
+      "computer"
+    );
+
+  }
+
+  /*
+    EXTRA BOOKS / CABINET
+  */
+
+  if(player.room>=3){
+
+    addObstacle(
+      W-175,
+      H-92,
+      120,
+      32,
+      "books"
+    );
+
+  }
+
+  /*
+    ROOM 4+ EXTRA BOXES
+  */
+
+  if(player.room>=4){
+
+    addObstacle(
+      135,
+      H-125,
+      45,
+      42,
+      "boxes"
+    );
+
+    addObstacle(
+      W-180,
+      120,
+      45,
+      42,
+      "boxes"
+    );
+
+  }
+
+}
+
+/* =========================================================
+   SPAWN FREE POSITION
+========================================================= */
+
+function spawnFreePosition(
+  radius=18,
+  minDistance=0
+){
+
+  for(let i=0;i<500;i++){
+
+    const x=
+      random(
+        45,
+        Math.max(46,W-45)
+      );
+
+    const y=
+      random(
+        90,
+        Math.max(91,H-45)
+      );
+
+    if(
+      !positionFree(
+        x,
+        y,
+        radius
+      )
+    ){
+      continue;
+    }
+
+    if(
+      minDistance>0 &&
+      player &&
+      Math.hypot(
+        x-player.x,
+        y-player.y
+      )<minDistance
+    ){
+      continue;
+    }
+
+    return {x,y};
+
+  }
+
+  /*
+    Fallback.
+  */
+
+  return {
+    x:W/2,
+    y:Math.min(
+      H/2,
+      110
+    )
+  };
+
+}
+
+/* =========================================================
+   CHARACTER CHOICES
+========================================================= */
+
+function selectGrade(grade){
+
+  player.grade=grade;
+
+  sound("button");
+
+  showScreen(
+    "roleScreen"
+  );
+
+}
+
+function selectRole(role){
+
+  player.role=role;
+
+  sound("button");
+
+  if(role==="teacher"){
+
+    player.character="Teacher";
+
+    player.style=
+      styleForCharacter(
+        "Teacher"+player.gender
+      );
+
+    showScreen(
+      "genderScreen"
+    );
+
+  }else{
+
+    showScreen(
+      "genderScreen"
+    );
+
+  }
+
+}
+
+function selectGender(gender){
+
+  player.gender=gender;
+
+  sound("button");
+
+  renderCharacterChoices();
+
+  showScreen(
+    "characterScreen"
+  );
+
+}
+
+function renderCharacterChoices(){
+
+  const grid=
+    $("characterGrid");
+
+  grid.innerHTML="";
+
+  let list=[];
+
+  if(player.role==="teacher"){
+
+    list=[
+      "Teacher"
+    ];
+
+  }else{
+
+    list=
+      characterRoster[
+        player.grade
+      ][
+        player.gender
+      ];
+
+  }
+
+  $("characterTitle").textContent=
+    "PILI OG IMONG CHARACTER";
+
+  list.forEach(name=>{
+
+    const btn=
+      document.createElement("button");
+
+    btn.className=
+      "choiceBtn";
+
+    const style=
+      styleForCharacter(
+        name+
+        player.grade+
+        player.gender
+      );
+
+    btn.innerHTML=`
+
+      <span
+        class="icon"
+        style="
+          color:${style.accent};
+          text-shadow:0 0 10px ${style.accent};
+        ">
+        ${player.role==="teacher"?"👨‍🏫":"🧑‍🎓"}
+      </span>
+
+      ${name}
+
+      <small>
+        GRADE ${player.grade}
+      </small>
+
+    `;
+
+    btn.onclick=()=>{
+
+      player.character=name;
+
+      player.style=
+        styleForCharacter(
+          name+
+          player.grade+
+          player.gender
+        );
+
+      sound("button");
+
+      showScreen(
+        "sideScreen"
+      );
+
+    };
+
+    grid.appendChild(btn);
+
+  });
+
+}
+
+/* =========================================================
+   SIDE
+========================================================= */
+
+function selectSide(side){
+
+  player.side=side;
+
+  sound("start");
+
+  beginGame();
+
+}
+
+/* =========================================================
+   ROOM ENEMIES
+========================================================= */
+
+function getEnemyNames(){
+
+  /*
+    Zombie mode:
+    students from both genders of the chosen grade.
+    This makes the classroom feel like a real class.
+  */
+
+  if(player.grade===7){
+
+    return [
+      ...characterRoster[7].male,
+      ...characterRoster[7].female
+    ];
+
+  }
+
+  if(player.grade===8){
+
+    return [
+      ...characterRoster[8].male,
+      ...characterRoster[8].female
+    ];
+
+  }
+
+  if(player.grade===9){
+
+    return [
+      ...characterRoster[9].male,
+      ...characterRoster[9].female
+    ];
+
+  }
+
+  if(player.grade===10){
+
+    return [
+      ...characterRoster[10].male,
+      ...characterRoster[10].female
+    ];
+
+  }
+
+  if(player.grade===11){
+
+    return [
+      ...characterRoster[11].male,
+      ...characterRoster[11].female
+    ];
+
+  }
+
+  return [
+    ...characterRoster[12].male,
+    ...characterRoster[12].female
+  ];
+
+}
+
+/* =========================================================
+   BEGIN GAME
+========================================================= */
+
+function beginGame(){
+
+  $("opening").classList.add("hidden");
+  $("creditScreen").classList.add("hidden");
+  $("titleScreen").classList.add("hidden");
+  $("nameScreen").classList.add("hidden");
+  $("gradeScreen").classList.add("hidden");
+  $("roleScreen").classList.add("hidden");
+  $("genderScreen").classList.add("hidden");
+  $("characterScreen").classList.add("hidden");
+  $("sideScreen").classList.add("hidden");
+
+  $("gameScreen").classList.remove("hidden");
+
+  gameRunning=true;
+  gameEnded=false;
+
+  player.hp=MAX_HP;
+  player.score=0;
+  player.coins=0;
+  player.room=1;
+  player.weaponIndex=0;
+
+  startRoom();
+
+  updateHUD();
+  updateShop();
+
+  lastTime=
+    performance.now();
+
+  requestAnimationFrame(
+    gameLoop
+  );
+
+}
+
+/* =========================================================
+   START ROOM
+========================================================= */
+
+function startRoom(){
+
+  zombies=[];
+  students=[];
+  alliedZombies=[];
+  projectiles=[];
+
+  roomKills=0;
+
+  buildRoom();
+
+  const spawn=
+    findPlayerSpawn();
+
+  player.x=spawn.x;
+  player.y=spawn.y;
+
+  player.angle=0;
+
+  /*
+    Difficulty increases by room.
+  */
+
+  let count;
+
+  if(player.side==="human"){
+
+    count=
+      4+
+      Math.min(
+        player.room*2,
+        14
+      );
+
+    for(
+      let i=0;
+      i<count;
+      i++
+    ){
+
+      spawnZombie(i,count);
+
+    }
+
+  }else{
+
+    const names=
+      getEnemyNames();
+
+    /*
+      Number of students rises gradually.
+    */
+
+    const countStudents=
+      Math.min(
+        5+
+        player.room*2,
+        names.length
+      );
+
+    for(
+      let i=0;
+      i<countStudents;
+      i++
+    ){
+
+      spawnStudent(
+        names[i%names.length],
+        i
+      );
+
+    }
+
+  }
+
+  showMessage(
+    "ROOM "+player.room,
+    1100
+  );
+
+  sound("room");
+
+  updateHUD();
+
+}
+
+/* =========================================================
+   PLAYER SPAWN
+========================================================= */
+
+function findPlayerSpawn(){
+
+  /*
+    Try center first.
+  */
+
+  const centerCandidates=[
+
+    {
+      x:W/2,
+      y:H/2
+    },
+
+    {
+      x:W/2,
+      y:H-70
+    },
+
+    {
+      x:W/2,
+      y:110
+    }
+
+  ];
+
+  for(
+    const p of centerCandidates
+  ){
+
+    if(
+      positionFree(
+        p.x,
+        p.y,
+        player.radius
+      )
+    ){
+
+      return p;
+
+    }
+
+  }
+
+  return spawnFreePosition(
+    player.radius,
+    0
+  );
+
+}
+
+/* =========================================================
+   ENEMY DAMAGE
+========================================================= */
+
+function damageForEnemy(index){
+
+  const tier=
+    (index+
+     player.room)%5;
+
+  if(player.room>=5 && index===0){
+    return 20;
+  }
+
+  if(tier===0){
+    return 15;
+  }
+
+  if(tier===1 || tier===2){
+    return 10;
+  }
+
+  return 5;
+}
+
+/* =========================================================
+   SPAWN ZOMBIE
+========================================================= */
+
+function spawnZombie(
+  index,
+  total
+){
+
+  const p=
+    spawnFreePosition(
+      17,
+      190
+    );
+
+  const strong=
+    player.room>=5 &&
+    index===0;
+
+  zombies.push({
+
+    x:p.x,
+    y:p.y,
+
+    radius:
+      strong ? 23 : 17,
+
+    hp:
+      strong
+      ?
+      100+
+      player.room*10
+      :
+      50+
+      player.room*6,
+
+    maxHp:
+      strong
+      ?
+      100+
+      player.room*10
+      :
+      50+
+      player.room*6,
+
+    speed:
+      strong
+      ?
+      52
+      :
+      58+
+      Math.min(
+        player.room*4,
+        28
+      ),
+
+    damage:
+      strong
+      ?
+      20
+      :
+      damageForEnemy(index),
+
+    strong:strong,
+
+    attackCooldown:
+      random(
+        .2,
+        .8
+      ),
+
+    hitFlash:0,
+
+    style:{
+      body:strong
+        ? "#7c3aed"
+        : "#65a30d",
+      shirt:
+        styleForCharacter(
+          "zombie"+
+          index+
+          player.room
+        ).shirt
+    }
+
+  });
+
+}
+
+/* =========================================================
+   SPAWN STUDENT
+========================================================= */
+
+function spawnStudent(
+  name,
+  index
+){
+
+  const p=
+    spawnFreePosition(
+      16,
+      200
+    );
+
+  const strong=
+    player.room>=4 &&
+    index===0;
+
+  const style=
+    styleForCharacter(
+      name+
+      player.grade+
+      index
+    );
+
+  students.push({
+
+    id:
+      Math.random()
+      .toString(36)
+      .slice(2),
+
+    name:name,
+
+    x:p.x,
+    y:p.y,
+
+    radius:16,
+
+    hp:
+      strong
+      ?
+      115
+      :
+      55+
+      player.room*5,
+
+    maxHp:
+      strong
+      ?
+      115
+      :
+      55+
+      player.room*5,
+
+    speed:
+      strong
+      ?
+      62
+      :
+      65+
+      Math.min(
+        player.room*3,
+        20
+      ),
+
+    damage:
+      strong
+      ?
+      20
+      :
+      damageForEnemy(index),
+
+    strong:strong,
+
+    attackCooldown:
+      random(.2,.8),
+
+    hitFlash:0,
+
+    style:style
+
+  });
+
+}
+
+/* =========================================================
+   ALLIED ZOMBIE
+========================================================= */
+
+function convertStudentToZombie(
+  student
+){
+
+  alliedZombies.push({
+
+    x:student.x,
+    y:student.y,
+
+    radius:17,
+
+    hp:70,
+    maxHp:70,
+
+    speed:70,
+
+    attackCooldown:.2,
+
+    hitFlash:0,
+
+    name:
+      student.name
+
+  });
+
+}
+
+/* =========================================================
+   MESSAGE
+========================================================= */
+
+let messageTimer=0;
+
+function showMessage(
+  text,
+  duration=900
+){
+
+  const el=
+    $("message");
+
+  el.textContent=text;
+  el.style.opacity="1";
+
+  messageTimer=
+    duration;
+
+}
+
+/* =========================================================
+   UPDATE HUD
+========================================================= */
+
+function updateHUD(){
+
+  $("playerNameHUD").textContent=
+    player.name;
+
+  $("modeHUD").textContent=
+    player.side==="human"
+      ?"TAO"
+      :"ZOMBIE";
+
+  $("gradeHUD").textContent=
+    "GRADE "+player.grade;
+
+  $("characterHUD").textContent=
+    player.character;
+
+  $("hpText").textContent=
+    Math.max(
+      0,
+      Math.round(player.hp)
+    );
+
+  $("hpFill").style.width=
+    clamp(
+      player.hp,
+      0,
+      100
+    )+"%";
+
+  $("roomHUD").textContent=
+    player.room;
+
+  $("scoreHUD").textContent=
+    player.score;
+
+  $("coinsHUD").textContent=
+    player.coins;
+
+  const enemies=
+    player.side==="human"
+      ?zombies.length
+      :students.length;
+
+  $("enemyHUD").textContent=
+    "ENEMIES: "+enemies;
+
+  $("attackLabel").textContent=
+    player.side==="human"
+      ?"THROW"
+      :"BITE";
+
+  if(player.side==="human"){
+
+    $("nextWeaponBtn")
+      .classList.remove(
+        "hidden"
+      );
+
+  }else{
+
+    $("nextWeaponBtn")
+      .classList.add(
+        "hidden"
+      );
+
+  }
+
+}
+
+/* =========================================================
+   SHOP
+========================================================= */
+
+function toggleShop(){
+
+  if(
+    player.side!=="human"
+  ){
+    return;
+  }
+
+  const panel=
+    $("shopPanel");
+
+  panel.classList.toggle(
+    "hidden"
+  );
+
+  updateShop();
+
+}
+
+function updateShop(){
+
+  const box=
+    $("shopItems");
+
+  box.innerHTML="";
+
+  weapons.forEach(
+    (weapon,index)=>{
+
+      const unlocked=
+        !!unlockedWeapons[index];
+
+      const button=
+        document.createElement(
+          "button"
+        );
+
+      button.className=
+        "shopItem";
+
+      button.innerHTML=`
+
+        <span>
+          ${weapon.icon}
+          ${weapon.name}
+        </span>
+
+        <span>
+          ${
+            unlocked
+            ?
+            "OWNED"
+            :
+            "🪙 "+weapon.cost
+          }
+        </span>
+
+      `;
+
+      button.onclick=()=>{
+
+        if(unlocked){
+
+          player.weaponIndex=
+            index;
+
+          sound("button");
+
+          showMessage(
+            weapon.icon+
+            " "+
+            weapon.name,
+            700
+          );
+
+          return;
+
+        }
+
+        if(
+          player.coins<
+          weapon.cost
+        ){
+
+          showMessage(
+            "KULANG ANG COINS!",
+            800
+          );
+
+          return;
+
+        }
+
+        player.coins-=
+          weapon.cost;
+
+        unlockedWeapons[index]=true;
+
+        player.weaponIndex=index;
+
+        sound("coin");
+
+        updateShop();
+        updateHUD();
+
+        showMessage(
+          "UNLOCKED: "+
+          weapon.name,
+          1000
+        );
+
+      };
+
+      box.appendChild(
+        button
+      );
+
+    }
+  );
+
+}
+
+/* =========================================================
+   WEAPON SWITCH
+========================================================= */
+
+function nextWeapon(){
+
+  if(
+    player.side!=="human"
+  ){
+    return;
+  }
+
+  const available=[];
+
+  for(
+    let i=0;
+    i<weapons.length;
+    i++
+  ){
+
+    if(unlockedWeapons[i]){
+      available.push(i);
+    }
+
+  }
+
+  if(!available.length){
+    return;
+  }
+
+  const currentPos=
+    available.indexOf(
+      player.weaponIndex
+    );
+
+  const nextPos=
+    currentPos<0
+      ?0
+      :(currentPos+1)%
+       available.length;
+
+  player.weaponIndex=
+    available[nextPos];
+
+  sound("button");
+
+  showMessage(
+    weapons[
+      player.weaponIndex
+    ].icon+
+    " "+
+    weapons[
+      player.weaponIndex
+    ].name,
+    700
+  );
+
+}
+
+/* =========================================================
+   ATTACK
+========================================================= */
+
+function attack(){
+
+  if(
+    !gameRunning ||
+    gameEnded
+  ){
+    return;
+  }
+
+  if(
+    attackTimer>0
+  ){
+    return;
+  }
+
+  if(player.side==="human"){
+
+    throwWeapon();
+
+  }else{
+
+    biteAttack();
+
+  }
+
+}
+
+/* =========================================================
+   HUMAN THROW
+========================================================= */
+
+function throwWeapon(){
+
+  const weapon=
+    weapons[
+      player.weaponIndex
+    ];
+
+  /*
+    MEDIUM SPEED:
+    Not too slow, not too fast.
+  */
+
+  const speed=365;
+
+  let dx=aim.x;
+  let dy=aim.y;
+
+  const len=
+    Math.hypot(
+      dx,
+      dy
+    )||1;
+
+  dx/=len;
+  dy/=len;
+
+  projectiles.push({
+
+    x:
+      player.x+
+      dx*25,
+
+    y:
+      player.y+
+      dy*25,
+
+    vx:
+      dx*speed,
+
+    vy:
+      dy*speed,
+
+    life:1.7,
+
+    radius:8,
+
+    power:
+      weapon.power,
+
+    icon:
+      weapon.icon
+
+  });
+
+  player.angle=
+    Math.atan2(
+      dy,
+      dx
+    );
+
+  attackTimer=
+    weapon.cooldown;
+
+  sound("throw");
+  playYawa();
+
+}
+
+/* =========================================================
+   ZOMBIE BITE
+========================================================= */
+
+function biteAttack(){
+
+  attackTimer=
+    650;
+
+  player.angle=
+    Math.atan2(
+      aim.y,
+      aim.x
+    );
+
+  sound("bite");
+  zombieVoice();
+
+  let target=null;
+  let best=62;
+
+  students.forEach(
+    student=>{
+
+      const dx=
+        student.x-
+        player.x;
+
+      const dy=
+        student.y-
+        player.y;
+
+      const d=
+        Math.hypot(
+          dx,
+          dy
+        );
+
+      if(
+        d>62 ||
+        d<1
+      ){
+        return;
+      }
+
+      const dot=
+        (dx*aim.x+
+         dy*aim.y)/
+        d;
+
+      /*
+        Attack cone.
+      */
+
+      if(
+        dot>.15 &&
+        d<best
+      ){
+
+        best=d;
+        target=student;
+
+      }
+
+    }
+  );
+
+  if(target){
+
+    target.hp-=
+      40;
+
+    target.hitFlash=
+      .16;
+
+    if(
+      target.hp<=0
+    ){
+
+      const index=
+        students.indexOf(
+          target
+        );
+
+      if(index>=0){
+
+        students.splice(
+          index,
+          1
+        );
+
+      }
+
+      convertStudentToZombie(
+        target
+      );
+
+      player.score+=
+        100;
+
+      player.coins+=
+        15;
+
+      roomKills++;
+
+      showMessage(
+        "NAKAGAT!",
+        500
+      );
+
+      sound("hit");
+
+    }
+
+  }
+
+}
+
+/* =========================================================
+   PROJECTILES
+========================================================= */
+
+function updateProjectiles(dt){
+
+  for(
+    let i=
+      projectiles.length-1;
+    i>=0;
+    i--
+  ){
+
+    const p=
+      projectiles[i];
+
+    const oldX=p.x;
+    const oldY=p.y;
+
+    p.x+=
+      p.vx*dt;
+
+    p.y+=
+      p.vy*dt;
+
+    p.life-=dt;
+
+    /*
+      Projectile hits classroom object.
+    */
+
+    if(
+      collidesWithObstacle(
+        p.x,
+        p.y,
+        p.radius
+      )
+    ){
+
+      projectiles.splice(
+        i,
+        1
+      );
+
+      sound("hit");
+
+      continue;
+    }
+
+    if(
+      p.life<=0 ||
+      p.x<-30 ||
+      p.x>W+30 ||
+      p.y<50 ||
+      p.y>H+30
+    ){
+
+      projectiles.splice(
+        i,
+        1
+      );
+
+      continue;
+    }
+
+    /*
+      Hit zombies.
+    */
+
+    let hit=false;
+
+    for(
+      let z=0;
+      z<zombies.length;
+      z++
+    ){
+
+      const zombie=
+        zombies[z];
+
+      if(
+        Math.hypot(
+          p.x-zombie.x,
+          p.y-zombie.y
+        )<
+        p.radius+
+        zombie.radius
+      ){
+
+        zombie.hp-=
+          p.power;
+
+        zombie.hitFlash=
+          .13;
+
+        projectiles.splice(
+          i,
+          1
+        );
+
+        sound("hit");
+
+        hit=true;
+
+        if(
+          zombie.hp<=0
+        ){
+
+          zombies.splice(
+            z,
+            1
+          );
+
+          player.score+=
+            zombie.strong
+              ?300
+              :100;
+
+          player.coins+=
+            zombie.strong
+              ?30
+              :10;
+
+          roomKills++;
+
+          sound("coin");
+
+        }
+
+        break;
+
+      }
+
+    }
+
+    if(hit){
+      continue;
+    }
+
+  }
+
+}
+
+/* =========================================================
+   AIM DIRECTION
+========================================================= */
+
+function setAimFromPoint(
+  x,
+  y
+){
+
+  const dx=
+    x-player.x;
+
+  const dy=
+    y-player.y;
+
+  const len=
+    Math.hypot(
+      dx,
+      dy
+    );
+
+  if(len>5){
+
+    aim.x=
+      dx/len;
+
+    aim.y=
+      dy/len;
+
+  }
+
+}
+
+/* =========================================================
+   PLAYER UPDATE
+========================================================= */
+
+function updatePlayer(dt){
+
+  let dx=
+    moveInput.x;
+
+  let dy=
+    moveInput.y;
+
+  const len=
+    Math.hypot(
+      dx,
+      dy
+    );
+
+  if(len>1){
+
+    dx/=len;
+    dy/=len;
+
+  }
+
+  if(
+    Math.abs(dx)+
+    Math.abs(dy)>.05
+  ){
+
+    moveEntity(
+      player,
+      dx*
+      player.speed*
+      dt,
+
+      dy*
+      player.speed*
+      dt
+    );
+
+  }
+
+  attackTimer=
+    Math.max(
+      0,
+      attackTimer-
+      dt*1000
+    );
+
+}
+
+/* =========================================================
+   AI STEERING
+========================================================= */
+
+function tryMoveToward(
+  entity,
+  target,
+  speed,
+  dt
+){
+
+  const dx=
+    target.x-
+    entity.x;
+
+  const dy=
+    target.y-
+    entity.y;
+
+  const len=
+    Math.hypot(
+      dx,
+      dy
+    );
+
+  if(len<1){
+    return;
+  }
+
+  const baseAngle=
+    Math.atan2(
+      dy,
+      dx
+    );
+
+  /*
+    Candidate directions.
+    This makes enemies slide around desks.
+  */
+
+  const angles=[
+
+    baseAngle,
+
+    baseAngle+.55,
+    baseAngle-.55,
+
+    baseAngle+1.0,
+    baseAngle-1.0,
+
+    baseAngle+1.55,
+    baseAngle-1.55,
+
+    baseAngle+Math.PI,
+    baseAngle+Math.PI*.75,
+    baseAngle-Math.PI*.75
+
+  ];
+
+  let best=null;
+
+  for(
+    const angle of angles
+  ){
+
+    const vx=
+      Math.cos(angle);
+
+    const vy=
+      Math.sin(angle);
+
+    const testX=
+      entity.x+
+      vx*
+      speed*
+      dt;
+
+    const testY=
+      entity.y+
+      vy*
+      speed*
+      dt;
+
+    if(
+      positionFree(
+        testX,
+        testY,
+        entity.radius
+      )
+    ){
+
+      const remaining=
+        Math.hypot(
+          target.x-testX,
+          target.y-testY
+        );
+
+      if(
+        !best ||
+        remaining<best.remaining
+      ){
+
+        best={
+          x:vx,
+          y:vy,
+          remaining
+        };
+
+      }
+
+    }
+
+  }
+
+  if(best){
+
+    entity.x+=
+      best.x*
+      speed*
+      dt;
+
+    entity.y+=
+      best.y*
+      speed*
+      dt;
+
+  }
+
+}
+
+/* =========================================================
+   ZOMBIE AI
+========================================================= */
+
+function updateZombies(dt){
+
+  zombies.forEach(
+    zombie=>{
+
+      zombie.hitFlash=
+        Math.max(
+          0,
+          zombie.hitFlash-dt
+        );
+
+      zombie.attackCooldown=
+        Math.max(
+          0,
+          zombie.attackCooldown-dt
+        );
+
+      const d=
+        distance(
+          zombie,
+          player
+        );
+
+      if(d>40){
+
+        tryMoveToward(
+          zombie,
+          player,
+          zombie.speed,
+          dt
+        );
+
+      }else{
+
+        if(
+          zombie.attackCooldown<=0
+        ){
+
+          damagePlayer(
+            zombie.damage
+          );
+
+          zombie.attackCooldown=
+            zombie.strong
+              ?1.35
+              :1.55;
+
+        }
+
+      }
+
+    }
+  );
+
+}
+
+/* =========================================================
+   STUDENT AI
+========================================================= */
+
+function updateStudents(dt){
+
+  students.forEach(
+    student=>{
+
+      student.hitFlash=
+        Math.max(
+          0,
+          student.hitFlash-dt
+        );
+
+      student.attackCooldown=
+        Math.max(
+          0,
+          student.attackCooldown-dt
+        );
+
+      const d=
+        distance(
+          student,
+          player
+        );
+
+      /*
+        Students chase the zombie player.
+      */
+
+      if(d>43){
+
+        tryMoveToward(
+          student,
+          player,
+          student.speed,
+          dt
+        );
+
+      }else{
+
+        if(
+          student.attackCooldown<=0
+        ){
+
+          damagePlayer(
+            student.damage
+          );
+
+          student.attackCooldown=
+            student.strong
+              ?1.3
+              :1.45;
+
+        }
+
+      }
+
+    }
+  );
+
+}
+
+/* =========================================================
+   ALLIED ZOMBIE AI
+========================================================= */
+
+function updateAlliedZombies(dt){
+
+  alliedZombies.forEach(
+    ally=>{
+
+      ally.hitFlash=
+        Math.max(
+          0,
+          ally.hitFlash-dt
+        );
+
+      ally.attackCooldown=
+        Math.max(
+          0,
+          ally.attackCooldown-dt
+        );
+
+      /*
+        Find nearest student.
+      */
+
+      let target=null;
+      let best=Infinity;
+
+      students.forEach(
+        student=>{
+
+          const d=
+            distance(
+              ally,
+              student
+            );
+
+          if(d<best){
+
+            best=d;
+            target=student;
+
+          }
+
+        }
+      );
+
+      if(
+        !target
+      ){
+        return;
+      }
+
+      if(best>40){
+
+        tryMoveToward(
+          ally,
+          target,
+          ally.speed,
+          dt
+        );
+
+      }else{
+
+        if(
+          ally.attackCooldown<=0
+        ){
+
+          target.hp-=
+            30;
+
+          target.hitFlash=
+            .12;
+
+          ally.attackCooldown=
+            1.1;
+
+          if(
+            target.hp<=0
+          ){
+
+            const index=
+              students.indexOf(
+                target
+              );
+
+            if(index>=0){
+
+              students.splice(
+                index,
+                1
+              );
+
+            }
+
+            /*
+              A defeated student becomes
+              another allied zombie.
+            */
+
+            convertStudentToZombie(
+              target
+            );
+
+            player.score+=
+              100;
+
+            player.coins+=
+              10;
+
+            roomKills++;
+
+          }
+
+        }
+
+      }
+
+    }
+  );
+
+}
+
+/* =========================================================
+   DAMAGE PLAYER
+========================================================= */
+
+function damagePlayer(
+  amount
+){
+
+  if(
+    !gameRunning ||
+    gameEnded
+  ){
+    return;
+  }
+
+  /*
+    Safety:
+    only permitted damage values.
+  */
+
+  amount=
+    [5,10,15,20]
+      .includes(amount)
+      ?amount
+      :5;
+
+  player.hp-=
+    amount;
+
+  player.hp=
+    clamp(
+      player.hp,
+      0,
+      MAX_HP
+    );
+
+  sound("hurt");
+
+  if(
+    player.side==="human"
+  ){
+    playYawa();
+  }else{
+    zombieVoice();
+  }
+
+  updateHUD();
+
+  if(
+    player.hp<=0
+  ){
+
+    endGame();
+
+  }
+
+}
+
+/* =========================================================
+   ROOM COMPLETE
+========================================================= */
+
+function checkRoom(){
+
+  const remaining=
+    player.side==="human"
+      ?zombies.length
+      :students.length;
+
+  if(
+    remaining===0 &&
+    !gameEnded &&
+    gameRunning
+  ){
+
+    gameRunning=false;
+
+    sound("clear");
+
+    $("winStats").innerHTML=`
+
+      <b>ROOM:</b>
+      ${player.room}
+      <br>
+
+      <b>SCORE:</b>
+      ${player.score}
+      <br>
+
+      <b>COINS:</b>
+      🪙 ${player.coins}
+      <br>
+
+      <b>DEFEATED:</b>
+      ${roomKills}
+
+      <br><br>
+
+      ${
+        player.side==="zombie"
+        ?
+        "🧟 Ang mga student nga imong napildi nahimong allied zombies!"
+        :
+        "🎯 Nahuman nimo ang classroom!"
+      }
+
+    `;
+
+    $("winScreen")
+      .classList.remove(
+        "hidden"
+      );
+
+  }
+
+}
+
+/* =========================================================
+   NEXT ROOM
+========================================================= */
+
+function nextRoom(){
+
+  $("winScreen")
+    .classList.add(
+      "hidden"
+    );
+
+  player.room++;
+
+  /*
+    Small HP recovery.
+  */
+
+  player.hp=
+    clamp(
+      player.hp+25,
+      0,
+      MAX_HP
+    );
+
+  gameRunning=true;
+
+  startRoom();
+
+  lastTime=
+    performance.now();
+
+}
+
+/* =========================================================
+   GAME OVER
+========================================================= */
+
+function endGame(){
+
+  if(gameEnded){
+    return;
+  }
+
+  gameEnded=true;
+  gameRunning=false;
+
+  sound("gameover");
+
+  $("gameOver")
+    .classList.remove(
+      "hidden"
+    );
+
+  $("gameOverStats")
+    .classList.add(
+      "hidden"
+    );
+
+  $("gameOverButtons")
+    .classList.add(
+      "hidden"
+    );
+
+  $("skipVideo")
+    .classList.remove(
+      "hidden"
+    );
+
+  const video=
+    $("gameOverVideo");
+
+  video.currentTime=0;
+
+  video.play()
+    .catch(()=>{
+      showGameOverStats();
+    });
+
+  video.onended=
+    showGameOverStats;
+
+}
+
+/* =========================================================
+   GAME OVER VIDEO
+========================================================= */
+
+function skipVideo(){
+
+  const video=
+    $("gameOverVideo");
+
+  video.pause();
+
+  showGameOverStats();
+
+}
+
+function showGameOverStats(){
+
+  $("skipVideo")
+    .classList.add(
+      "hidden"
+    );
+
+  $("gameOverStats").innerHTML=`
+
+    <b>PLAYER:</b>
+    ${player.name}
+
+    <br>
+
+    <b>MODE:</b>
+    ${
+      player.side==="human"
+      ?"TAO"
+      :"ZOMBIE"
+    }
+
+    <br>
+
+    <b>ROOM:</b>
+    ${player.room}
+
+    <br>
+
+    <b>SCORE:</b>
+    ${player.score}
+
+    <br>
+
+    <b>COINS:</b>
+    🪙 ${player.coins}
+
+  `;
+
+  $("gameOverStats")
+    .classList.remove(
+      "hidden"
+    );
+
+  $("gameOverButtons")
+    .classList.remove(
+      "hidden"
+    );
+
+}
+
+/* =========================================================
+   RESTART
+========================================================= */
+
+function restartGame(){
+
+  $("gameOver")
+    .classList.add(
+      "hidden"
+    );
+
+  $("winScreen")
+    .classList.add(
+      "hidden"
+    );
+
+  player.hp=MAX_HP;
+  player.score=0;
+  player.coins=0;
+  player.room=1;
+
+  gameEnded=false;
+  gameRunning=true;
+
+  startRoom();
+
+  lastTime=
+    performance.now();
+
+}
+
+/* =========================================================
+   MAIN MENU
+========================================================= */
+
+function mainMenu(){
+
+  gameRunning=false;
+  gameEnded=true;
+
+  $("gameOver")
+    .classList.add(
+      "hidden"
+    );
+
+  $("winScreen")
+    .classList.add(
+      "hidden"
+    );
+
+  $("gameScreen")
+    .classList.add(
+      "hidden"
+    );
+
+  showScreen(
+    "titleScreen"
+  );
+
+}
+
+/* =========================================================
+   DRAW HELPERS
+========================================================= */
+
+function roundedRect(
+  x,
+  y,
+  w,
+  h,
+  r
+){
+
+  const radius=
+    Math.min(
+      r,
+      w/2,
+      h/2
+    );
+
+  ctx.beginPath();
+
+  ctx.moveTo(
+    x+radius,
+    y
+  );
+
+  ctx.arcTo(
+    x+w,
+    y,
+    x+w,
+    y+h,
+    radius
+  );
+
+  ctx.arcTo(
+    x+w,
+    y+h,
+    x,
+    y+h,
+    radius
+  );
+
+  ctx.arcTo(
+    x,
+    y+h,
+    x,
+    y,
+    radius
+  );
+
+  ctx.arcTo(
+    x,
+    y,
+    x+w,
+    y,
+    radius
+  );
+
+  ctx.closePath();
+
+}
+
+function drawShadow(
+  x,
+  y,
+  w,
+  h
+){
+
+  ctx.save();
+
+  ctx.fillStyle=
+    "rgba(0,0,0,.28)";
+
+  ctx.beginPath();
+
+  ctx.ellipse(
+    x,
+    y,
+    w,
+    h,
+    0,
+    0,
+    Math.PI*2
+  );
+
+  ctx.fill();
+
+  ctx.restore();
+
+}
+
+/* =========================================================
+   CLASSROOM BACKGROUND
+========================================================= */
+
+function drawClassroom(){
+
+  /*
+    Floor
+  */
+
+  ctx.fillStyle="#24152b";
+  ctx.fillRect(
+    0,
+    0,
+    W,
+    H
+  );
+
+  /*
+    Floor tiles
+  */
+
+  const tile=55;
+
+  ctx.strokeStyle=
+    "rgba(255,255,255,.035)";
+
+  ctx.lineWidth=1;
+
+  for(
+    let x=0;
+    x<W;
+    x+=tile
+  ){
+
+    ctx.beginPath();
+    ctx.moveTo(x,68);
+    ctx.lineTo(x,H);
+    ctx.stroke();
+
+  }
+
+  for(
+    let y=68;
+    y<H;
+    y+=tile
+  ){
+
+    ctx.beginPath();
+    ctx.moveTo(0,y);
+    ctx.lineTo(W,y);
+    ctx.stroke();
+
+  }
+
+  /*
+    Walls
+  */
+
+  ctx.fillStyle="#35174b";
+
+  ctx.fillRect(
+    0,
+    0,
+    W,
+    68
+  );
+
+  ctx.fillStyle="#160a20";
+
+  ctx.fillRect(
+    0,
+    64,
+    W,
+    6
+  );
+
+  /*
+    Windows
+  */
+
+  drawWindow(
+    25,
+    12,
+    100,
+    38
+  );
+
+  drawWindow(
+    W-125,
+    12,
+    100,
+    38
+  );
+
+  /*
+    Blackboard
+  */
+
+  drawBlackboard();
+
+  /*
+    Door
+  */
+
+  drawDoor();
+
+  /*
+    Draw objects.
+  */
+
+  obstacles.forEach(
+    obstacle=>{
+      drawObstacle(
+        obstacle
+      );
+    }
+  );
+
+}
+
+/* =========================================================
+   WINDOW
+========================================================= */
+
+function drawWindow(
+  x,
+  y,
+  w,
+  h
+){
+
+  ctx.save();
+
+  ctx.fillStyle="#0b1b2d";
+
+  ctx.fillRect(
+    x,
+    y,
+    w,
+    h
+  );
+
+  ctx.strokeStyle="#9ca3af";
+  ctx.lineWidth=4;
+
+  ctx.strokeRect(
+    x,
+    y,
+    w,
+    h
+  );
+
+  ctx.strokeStyle="#64748b";
+  ctx.lineWidth=2;
+
+  ctx.beginPath();
+
+  ctx.moveTo(
+    x+w/2,
+    y
+  );
+
+  ctx.lineTo(
+    x+w/2,
+    y+h
+  );
+
+  ctx.moveTo(
+    x,
+    y+h/2
+  );
+
+  ctx.lineTo(
+    x+w,
+    y+h/2
+  );
+
+  ctx.stroke();
+
+  ctx.fillStyle=
+    "rgba(96,165,250,.18)";
+
+  ctx.fillRect(
+    x+4,
+    y+4,
+    w-8,
+    h-8
+  );
+
+  ctx.restore();
+
+}
+
+/* =========================================================
+   BLACKBOARD
+========================================================= */
+
+function drawBlackboard(){
+
+  const w=
+    Math.min(
+      250,
+      W*.38
+    );
+
+  const x=
+    W/2-w/2;
+
+  const y=9;
+
+  ctx.save();
+
+  ctx.fillStyle="#111827";
+
+  roundedRect(
+    x,
+    y,
+    w,
+    47,
+    5
+  );
+
+  ctx.fill();
+
+  ctx.strokeStyle="#7c5a32";
+  ctx.lineWidth=5;
+
+  ctx.stroke();
+
+  ctx.fillStyle=
+    "rgba(255,255,255,.7)";
+
+  ctx.font="bold 12px Arial";
+
+  ctx.textAlign="center";
+
+  ctx.fillText(
+    "NIHS ZOMBIE",
+    W/2,
+    y+20
+  );
+
+  ctx.font="9px Arial";
+
+  ctx.fillText(
+    "CLASSROOM",
+    W/2,
+    y+35
+  );
+
+  ctx.restore();
+
+}
+
+/* =========================================================
+   DOOR
+========================================================= */
+
+function drawDoor(){
+
+  const x=
+    W/2-35;
+
+  const y=
+    H-42;
+
+  ctx.save();
+
+  ctx.fillStyle="#542c18";
+
+  ctx.fillRect(
+    x,
+    y,
+    70,
+    42
+  );
+
+  ctx.strokeStyle="#9a6a3b";
+  ctx.lineWidth=3;
+
+  ctx.strokeRect(
+    x,
+    y,
+    70,
+    42
+  );
+
+  ctx.fillStyle="#facc15";
+
+  ctx.beginPath();
+
+  ctx.arc(
+    x+57,
+    y+22,
+    3,
+    0,
+    Math.PI*2
+  );
+
+  ctx.fill();
+
+  ctx.restore();
+
+}
+
+/* =========================================================
+   DRAW OBSTACLES
+========================================================= */
+
+function drawObstacle(o){
+
+  drawShadow(
+    o.x+o.w/2,
+    o.y+o.h+5,
+    o.w*.48,
+    7
+  );
+
+  if(o.type==="desk"){
+
+    drawDesk(o);
+
+  }else if(o.type==="cabinet"){
+
+    drawCabinet(o);
+
+  }else if(o.type==="teacher"){
+
+    drawTeacherTable(o);
+
+  }else if(o.type==="shelf"){
+
+    drawShelf(o);
+
+  }else if(o.type==="computer"){
+
+    drawComputerTable(o);
+
+  }else if(o.type==="books"){
+
+    drawBooks(o);
+
+  }else if(o.type==="boxes"){
+
+    drawBoxes(o);
+
+  }
+
+}
+
+/* =========================================================
+   DESK
+========================================================= */
+
+function drawDesk(o){
+
+  ctx.save();
+
+  /*
+    legs
+  */
+
+  ctx.strokeStyle="#4b2e1b";
+  ctx.lineWidth=5;
+
+  ctx.beginPath();
+
+  ctx.moveTo(
+    o.x+10,
+    o.y+o.h
+  );
+
+  ctx.lineTo(
+    o.x+10,
+    o.y+o.h+13
+  );
+
+  ctx.moveTo(
+    o.x+o.w-10,
+    o.y+o.h
+  );
+
+  ctx.lineTo(
+    o.x+o.w-10,
+    o.y+o.h+13
+  );
+
+  ctx.stroke();
+
+  /*
+    desktop
+  */
+
+  ctx.fillStyle="#8b5a2b";
+
+  roundedRect(
+    o.x,
+    o.y,
+    o.w,
+    o.h,
+    5
+  );
+
+  ctx.fill();
+
+  ctx.strokeStyle="#c08a4c";
+  ctx.lineWidth=2;
+
+  ctx.stroke();
+
+  /*
+    drawer
+  */
+
+  ctx.fillStyle="#5f3b20";
+
+  ctx.fillRect(
+    o.x+o.w-23,
+    o.y+7,
+    16,
+    15
+  );
+
+  /*
+    notebook
+  */
+
+  ctx.fillStyle="#e5e7eb";
+
+  ctx.fillRect(
+    o.x+9,
+    o.y+7,
+    22,
+    13
+  );
+
+  ctx.fillStyle="#2563eb";
+
+  ctx.fillRect(
+    o.x+13,
+    o.y+9,
+    15,
+    2
+  );
+
+  ctx.restore();
+
+}
+
+/* =========================================================
+   CABINET
+========================================================= */
+
+function drawCabinet(o){
+
+  ctx.save();
+
+  ctx.fillStyle="#475569";
+
+  roundedRect(
+    o.x,
+    o.y,
+    o.w,
+    o.h,
+    5
+  );
+
+  ctx.fill();
+
+  ctx.strokeStyle="#94a3b8";
+  ctx.lineWidth=2;
+
+  ctx.stroke();
+
+  for(
+    let i=1;
+    i<3;
+    i++
+  ){
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+      o.x+i*o.w/3,
+      o.y
+    );
+
+    ctx.lineTo(
+      o.x+i*o.w/3,
+      o.y+o.h
+    );
+
+    ctx.stroke();
+
+  }
+
+  ctx.fillStyle="#cbd5e1";
+
+  for(
+    let i=0;
+    i<3;
+    i++
+  ){
+
+    ctx.beginPath();
+
+    ctx.arc(
+      o.x+
+      (i+.5)*o.w/3,
+      o.y+o.h/2,
+      2,
+      0,
+      Math.PI*2
+    );
+
+    ctx.fill();
+
+  }
+
+  ctx.restore();
+
+}
+
+/* =========================================================
+   TEACHER TABLE
+========================================================= */
+
+function drawTeacherTable(o){
+
+  ctx.save();
+
+  ctx.fillStyle="#6b4423";
+
+  roundedRect(
+    o.x,
+    o.y,
+    o.w,
+    o.h,
+    6
+  );
+
+  ctx.fill();
+
+  ctx.strokeStyle="#b9834d";
+  ctx.lineWidth=2;
+
+  ctx.stroke();
+
+  /*
+    computer
+  */
+
+  const cx=
+    o.x+o.w/2;
+
+  ctx.fillStyle="#111827";
+
+  ctx.fillRect(
+    cx-18,
+    o.y+5,
+    36,
+    20
+  );
+
+  ctx.fillStyle="#60a5fa";
+
+  ctx.fillRect(
+    cx-14,
+    o.y+8,
+    28,
+    13
+  );
+
+  ctx.fillStyle="#374151";
+
+  ctx.fillRect(
+    cx-3,
+    o.y+25,
+    6,
+    6
+  );
+
+  ctx.fillRect(
+    cx-12,
+    o.y+30,
+    24,
+    3
+  );
+
+  ctx.restore();
+
+}
+
+/* =========================================================
+   SHELF
+========================================================= */
+
+function drawShelf(o){
+
+  ctx.save();
+
+  ctx.fillStyle="#5b371c";
+
+  roundedRect(
+    o.x,
+    o.y,
+    o.w,
+    o.h,
+    4
+  );
+
+  ctx.fill();
+
+  ctx.strokeStyle="#a86f3c";
+  ctx.lineWidth=2;
+
+  ctx.stroke();
+
+  for(
+    let i=0;
+    i<3;
+    i++
+  ){
+
+    const colors=[
+      "#ef4444",
+      "#3b82f6",
+      "#22c55e",
+      "#f59e0b"
+    ];
+
+    for(
+      let j=0;
+      j<4;
+      j++
+    ){
+
+      ctx.fillStyle=
+        colors[
+          (i+j)%colors.length
+        ];
+
+      ctx.fillRect(
+        o.x+
+        7+
+        j*18,
+
+        o.y+
+        5+
+        i*11,
+
+        13,
+        8
+      );
+
+    }
+
+  }
+
+  ctx.restore();
+
+}
+
+/* =========================================================
+   COMPUTER TABLE
+========================================================= */
+
+function drawComputerTable(o){
+
+  ctx.save();
+
+  ctx.fillStyle="#334155";
+
+  roundedRect(
+    o.x,
+    o.y,
+    o.w,
+    o.h,
+    5
+  );
+
+  ctx.fill();
+
+  ctx.fillStyle="#111827";
+
+  ctx.fillRect(
+    o.x+15,
+    o.y-18,
+    30,
+    19
+  );
+
+  ctx.fillStyle="#60a5fa";
+
+  ctx.fillRect(
+    o.x+18,
+    o.y-15,
+    24,
+    13
+  );
+
+  ctx.fillStyle="#111827";
+
+  ctx.fillRect(
+    o.x+58,
+    o.y-15,
+    30,
+    19
+  );
+
+  ctx.fillStyle="#60a5fa";
+
+  ctx.fillRect(
+    o.x+61,
+    o.y-12,
+    24,
+    13
+  );
+
+  ctx.restore();
+
+}
+
+/* =========================================================
+   BOOKS
+========================================================= */
+
+function drawBooks(o){
+
+  ctx.save();
+
+  ctx.fillStyle="#7c4a25";
+
+  roundedRect(
+    o.x,
+    o.y,
+    o.w,
+    o.h,
+    5
+  );
+
+  ctx.fill();
+
+  const colors=[
+    "#ef4444",
+    "#3b82f6",
+    "#22c55e",
+    "#f59e0b",
+    "#a855f7"
+  ];
+
+  for(
+    let i=0;
+    i<7;
+    i++
+  ){
+
+    ctx.fillStyle=
+      colors[i%colors.length];
+
+    ctx.fillRect(
+      o.x+
+      8+
+      i*15,
+      o.y+5,
+      11,
+      21
+    );
+
+  }
+
+  ctx.restore();
+
+}
+
+/* =========================================================
+   BOXES
+========================================================= */
+
+function drawBoxes(o){
+
+  ctx.save();
+
+  ctx.fillStyle="#a16207";
+
+  ctx.fillRect(
+    o.x,
+    o.y,
+    o.w,
+    o.h
+  );
+
+  ctx.strokeStyle="#facc15";
+  ctx.lineWidth=2;
+
+  ctx.strokeRect(
+    o.x,
+    o.y,
+    o.w,
+    o.h
+  );
+
+  ctx.beginPath();
+
+  ctx.moveTo(
+    o.x,
+    o.y
+  );
+
+  ctx.lineTo(
+    o.x+o.w,
+    o.y+o.h
+  );
+
+  ctx.moveTo(
+    o.x+o.w,
+    o.y
+  );
+
+  ctx.lineTo(
+    o.x,
+    o.y+o.h
+  );
+
+  ctx.stroke();
+
+  ctx.restore();
+
+}
+
+/* =========================================================
+   DRAW PLAYER
+========================================================= */
+
+function drawCharacter(
+  entity,
+  style,
+  isZombie=false,
+  label=""
+){
+
+  ctx.save();
+
+  /*
+    Shadow
+  */
+
+  drawShadow(
+    entity.x,
+    entity.y+
+    entity.radius*.85,
+    entity.radius*.85,
+    6
+  );
+
+  /*
+    Body
+  */
+
+  ctx.translate(
+    entity.x,
+    entity.y
+  );
+
+  /*
+    Direction
+  */
+
+  ctx.rotate(
+    player===entity
+      ?player.angle
+      :0
+  );
+
+  /*
+    Legs
+  */
+
+  ctx.strokeStyle=
+    style.pants||
+    "#1e293b";
+
+  ctx.lineWidth=7;
+
+  ctx.beginPath();
+
+  ctx.moveTo(-6,8);
+  ctx.lineTo(-6,17);
+
+  ctx.moveTo(6,8);
+  ctx.lineTo(6,17);
+
+  ctx.stroke();
+
+  /*
+    Body
+  */
+
+  ctx.fillStyle=
+    isZombie
+      ?" #65a30d".trim()
+      :(style.shirt||
+        "#3b82f6");
+
+  roundedRect(
+    -11,
+    -4,
+    22,
+    20,
+    5
+  );
+
+  ctx.fill();
+
+  /*
+    Head
+  */
+
+  ctx.fillStyle=
+    isZombie
+      ?" #a3e635".trim()
+      :"#f2c7a5";
+
+  ctx.beginPath();
+
+  ctx.arc(
+    0,
+    -14,
+    10,
+    0,
+    Math.PI*2
+  );
+
+  ctx.fill();
+
+  /*
+    Hair
+  */
+
+  ctx.fillStyle=
+    style.hair||
+    "#111827";
+
+  ctx.beginPath();
+
+  ctx.arc(
+    0,
+    -17,
+    10,
+    Math.PI,
+    Math.PI*2
+  );
+
+  ctx.fill();
+
+  /*
+    Zombie eyes
+  */
+
+  if(isZombie){
+
+    ctx.fillStyle="#111";
+
+    ctx.beginPath();
+
+    ctx.arc(
+      -4,
+      -14,
+      2,
+      0,
+      Math.PI*2
+    );
+
+    ctx.arc(
+      4,
+      -14,
+      2,
+      0,
+      Math.PI*2
+    );
+
+    ctx.fill();
+
+  }else{
+
+    /*
+      Face
+    */
+
+    ctx.fillStyle="#111827";
+
+    ctx.beginPath();
+
+    ctx.arc(
+      -3,
+      -14,
+      1.5,
+      0,
+      Math.PI*2
+    );
+
+    ctx.arc(
+      3,
+      -14,
+      1.5,
+      0,
+      Math.PI*2
+    );
+
+    ctx.fill();
+
+  }
+
+  /*
+    Accent
+  */
+
+  ctx.fillStyle=
+    style.accent||
+    "#facc15";
+
+  ctx.fillRect(
+    -3,
+    -4,
+    6,
+    4
+  );
+
+  /*
+    Attack direction
+  */
+
+  if(player===entity){
+
+    ctx.strokeStyle=
+      style.accent||
+      "#fff";
+
+    ctx.lineWidth=3;
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+      9,
+      0
+    );
+
+    ctx.lineTo(
+      20,
+      0
+    );
+
+    ctx.stroke();
+
+  }
+
+  ctx.restore();
+
+  /*
+    Name label
+  */
+
+  if(label){
+
+    ctx.save();
+
+    ctx.font=
+      "bold 9px Arial";
+
+    ctx.textAlign="center";
+
+    ctx.fillStyle=
+      "rgba(0,0,0,.7)";
+
+    const width=
+      ctx.measureText(label).width+
+      8;
+
+    ctx.fillRect(
+      entity.x-width/2,
+      entity.y-38,
+      width,
+      13
+    );
+
+    ctx.fillStyle="#fff";
+
+    ctx.fillText(
+      label,
+      entity.x,
+      entity.y-28
+    );
+
+    ctx.restore();
+
+  }
+
+}
+
+/* =========================================================
+   DRAW ZOMBIE
+========================================================= */
+
+function drawZombie(z){
+
+  const style={
+    shirt:
+      z.style.shirt,
+
+    pants:"#365314",
+
+    hair:"#17210a",
+
+    accent:
+      z.strong
+        ?" #facc15".trim()
+        :"#ef4444"
+
+  };
+
+  if(z.hitFlash>0){
+
+    ctx.save();
+
+    ctx.globalAlpha=.65;
+
+    ctx.fillStyle="#fff";
+
+    ctx.beginPath();
+
+    ctx.arc(
+      z.x,
+      z.y,
+      z.radius+4,
+      0,
+      Math.PI*2
+    );
+
+    ctx.fill();
+
+    ctx.restore();
+
+  }
+
+  drawCharacter(
+    z,
+    style,
+    true,
+    z.strong
+      ?"BOSS"
+      :""
+  );
+
+  /*
+    HP
+  */
+
+  drawHealthBar(
+    z.x,
+    z.y-25,
+    z.radius*2,
+    z.hp/z.maxHp
+  );
+
+}
+
+/* =========================================================
+   DRAW STUDENT
+========================================================= */
+
+function drawStudent(s){
+
+  if(s.hitFlash>0){
+
+    ctx.save();
+
+    ctx.globalAlpha=.6;
+
+    ctx.fillStyle="#fff";
+
+    ctx.beginPath();
+
+    ctx.arc(
+      s.x,
+      s.y,
+      s.radius+4,
+      0,
+      Math.PI*2
+    );
+
+    ctx.fill();
+
+    ctx.restore();
+
+  }
+
+  drawCharacter(
+    s,
+    s.style,
+    false,
+    s.name
+  );
+
+  drawHealthBar(
+    s.x,
+    s.y-25,
+    s.radius*2,
+    s.hp/s.maxHp
+  );
+
+}
+
+/* =========================================================
+   DRAW ALLIED ZOMBIE
+========================================================= */
+
+function drawAlly(a){
+
+  const style={
+    shirt:"#22c55e",
+    pants:"#14532d",
+    hair:"#111827",
+    accent:"#86efac"
+  };
+
+  drawCharacter(
+    a,
+    style,
+    true,
+    a.name
+  );
+
+}
+
+/* =========================================================
+   HEALTH BAR
+========================================================= */
+
+function drawHealthBar(
+  x,
+  y,
+  width,
+  ratio
+){
+
+  const w=
+    Math.max(
+      26,
+      width
+    );
+
+  const h=4;
+
+  ctx.save();
+
+  ctx.fillStyle=
+    "rgba(0,0,0,.65)";
+
+  ctx.fillRect(
+    x-w/2,
+    y,
+    w,
+    h
+  );
+
+  ctx.fillStyle=
+    "#22c55e";
+
+  ctx.fillRect(
+    x-w/2,
+    y,
+    w*
+    clamp(
+      ratio,
+      0,
+      1
+    ),
+    h
+  );
+
+  ctx.restore();
+
+}
+
+/* =========================================================
+   DRAW PROJECTILES
+========================================================= */
+
+function drawProjectiles(){
+
+  projectiles.forEach(
+    p=>{
+
+      ctx.save();
+
+      ctx.translate(
+        p.x,
+        p.y
+      );
+
+      ctx.rotate(
+        Math.atan2(
+          p.vy,
+          p.vx
+        )
+      );
+
+      ctx.font=
+        "22px Arial";
+
+      ctx.textAlign="center";
+      ctx.textBaseline="middle";
+
+      ctx.shadowColor=
+        "#c084fc";
+
+      ctx.shadowBlur=10;
+
+      ctx.fillText(
+        p.icon,
+        0,
+        0
+      );
+
+      ctx.restore();
+
+    }
+  );
+
+}
+
+/* =========================================================
+   DRAW AIM
+========================================================= */
+
+function drawAim(){
+
+  if(
+    !gameRunning
+  ){
+    return;
+  }
+
+  ctx.save();
+
+  ctx.strokeStyle=
+    player.side==="human"
+      ?"rgba(192,132,252,.45)"
+      :"rgba(74,222,128,.45)";
+
+  ctx.lineWidth=2;
+
+  ctx.setLineDash([
+    7,
+    7
+  ]);
+
+  ctx.beginPath();
+
+  ctx.moveTo(
+    player.x+
+    aim.x*24,
+
+    player.y+
+    aim.y*24
+  );
+
+  ctx.lineTo(
+    player.x+
+    aim.x*105,
+
+    player.y+
+    aim.y*105
+  );
+
+  ctx.stroke();
+
+  ctx.setLineDash([]);
+
+  ctx.restore();
+
+}
+
+/* =========================================================
+   MAIN DRAW
+========================================================= */
+
+function draw(){
+
+  ctx.clearRect(
+    0,
+    0,
+    W,
+    H
+  );
+
+  drawClassroom();
+
+  drawAim();
+
+  /*
+    Projectiles behind characters.
+  */
+
+  drawProjectiles();
+
+  /*
+    Allied zombies
+  */
+
+  alliedZombies.forEach(
+    drawAlly
+  );
+
+  /*
+    Enemies
+  */
+
+  if(player.side==="human"){
+
+    zombies.forEach(
+      drawZombie
+    );
+
+  }else{
+
+    students.forEach(
+      drawStudent
+    );
+
+  }
+
+  /*
+    Player last
+  */
+
+  const playerStyle=
+    player.style||
+    styleForCharacter(
+      player.character
+    );
+
+  drawCharacter(
+    player,
+    playerStyle,
+    player.side==="zombie",
+    player.character
+  );
+
+}
+
+/* =========================================================
+   GAME LOOP
+========================================================= */
+
+function gameLoop(timestamp){
+
+  if(
+    !gameRunning &&
+    !gameEnded
+  ){
+
+    draw();
+
+    return;
+
+  }
+
+  const dt=
+    Math.min(
+      (timestamp-lastTime)/
+      1000,
+      .033
+    );
+
+  lastTime=timestamp;
+
+  if(
+    gameRunning &&
+    !gameEnded
+  ){
+
+    updatePlayer(dt);
+
+    if(
+      player.side==="human"
+    ){
+
+      updateZombies(dt);
+
+    }else{
+
+      updateStudents(dt);
+      updateAlliedZombies(dt);
+
+    }
+
+    updateProjectiles(dt);
+
+    if(
+      messageTimer>0
+    ){
+
+      messageTimer-=
+        dt*1000;
+
+      if(
+        messageTimer<=0
+      ){
+
+        $("message")
+          .style.opacity="0";
+
+      }
+
+    }
+
+    checkRoom();
+
+    updateHUD();
+
+  }
+
+  draw();
+
+  requestAnimationFrame(
+    gameLoop
+  );
+
+}
+
+/* =========================================================
+   MOVEMENT JOYSTICK
+========================================================= */
+
+function setupMovePad(){
+
+  const pad=
+    $("movePad");
+
+  const stick=
+    $("moveStick");
+
+  function update(clientX,clientY){
+
+    const rect=
+      pad.getBoundingClientRect();
+
+    const cx=
+      rect.left+
+      rect.width/2;
+
+    const cy=
+      rect.top+
+      rect.height/2;
+
+    let dx=
+      clientX-cx;
+
+    let dy=
+      clientY-cy;
+
+    const max=
+      rect.width/2-
+      30;
+
+    const len=
+      Math.hypot(
+        dx,
+        dy
+      );
+
+    if(len>max){
+
+      dx=
+        dx/len*
+        max;
+
+      dy=
+        dy/len*
+        max;
+
+    }
+
+    moveInput.x=
+      dx/max;
+
+    moveInput.y=
+      dy/max;
+
+    stick.style.left=
+      `calc(50% + ${dx}px)`;
+
+    stick.style.top=
+      `calc(50% + ${dy}px)`;
+
+  }
+
+  function reset(){
+
+    moveInput.x=0;
+    moveInput.y=0;
+
+    stick.style.left="50%";
+    stick.style.top="50%";
+
+    movePointer=null;
+
+  }
+
+  pad.addEventListener(
+    "pointerdown",
+    e=>{
+
+      if(
+        movePointer!==null
+      ){
+        return;
+      }
+
+      movePointer=
+        e.pointerId;
+
+      pad.setPointerCapture(
+        e.pointerId
+      );
+
+      update(
+        e.clientX,
+        e.clientY
+      );
+
+    }
+  );
+
+  pad.addEventListener(
+    "pointermove",
+    e=>{
+
+      if(
+        e.pointerId===
+        movePointer
+      ){
+
+        update(
+          e.clientX,
+          e.clientY
+        );
+
+      }
+
+    }
+  );
+
+  pad.addEventListener(
+    "pointerup",
+    e=>{
+
+      if(
+        e.pointerId===
+        movePointer
+      ){
+
+        reset();
+
+      }
+
+    }
+  );
+
+  pad.addEventListener(
+    "pointercancel",
+    reset
+  );
+
+}
+
+setupMovePad();
+
+/* =========================================================
+   AIM JOYSTICK
+========================================================= */
+
+function setupAimPad(){
+
+  const pad=
+    $("aimPad");
+
+  const stick=
+    $("aimStick");
+
+  function update(
+    clientX,
+    clientY
+  ){
+
+    const rect=
+      pad.getBoundingClientRect();
+
+    const cx=
+      rect.left+
+      rect.width/2;
+
+    const cy=
+      rect.top+
+      rect.height/2;
+
+    let dx=
+      clientX-cx;
+
+    let dy=
+      clientY-cy;
+
+    const max=
+      rect.width/2-
+      30;
+
+    const len=
+      Math.hypot(
+        dx,
+        dy
+      );
+
+    if(len>max){
+
+      dx=
+        dx/len*
+        max;
+
+      dy=
+        dy/len*
+        max;
+
+    }
+
+    if(
+      Math.hypot(
+        dx,
+        dy
+      )>5
+    ){
+
+      aim.x=
+        dx/
+        Math.hypot(dx,dy);
+
+      aim.y=
+        dy/
+        Math.hypot(dx,dy);
+
+      player.angle=
+        Math.atan2(
+          aim.y,
+          aim.x
+        );
+
+    }
+
+    stick.style.left=
+      `calc(50% + ${dx}px)`;
+
+    stick.style.top=
+      `calc(50% + ${dy}px)`;
+
+  }
+
+  function reset(){
+
+    stick.style.left="50%";
+    stick.style.top="50%";
+
+    aimPointer=null;
+
+    /*
+      IMPORTANT:
+      Release = attack.
+    */
+
+    attack();
+
+  }
+
+  pad.addEventListener(
+    "pointerdown",
+    e=>{
+
+      if(
+        aimPointer!==null
+      ){
+        return;
+      }
+
+      aimPointer=
+        e.pointerId;
+
+      pad.setPointerCapture(
+        e.pointerId
+      );
+
+      update(
+        e.clientX,
+        e.clientY
+      );
+
+    }
+  );
+
+  pad.addEventListener(
+    "pointermove",
+    e=>{
+
+      if(
+        e.pointerId===
+        aimPointer
+      ){
+
+        update(
+          e.clientX,
+          e.clientY
+        );
+
+      }
+
+    }
+  );
+
+  pad.addEventListener(
+    "pointerup",
+    e=>{
+
+      if(
+        e.pointerId===
+        aimPointer
+      ){
+
+        reset();
+
+      }
+
+    }
+  );
+
+  pad.addEventListener(
+    "pointercancel",
+    e=>{
+
+      if(
+        e.pointerId===
+        aimPointer
+      ){
+
+        aimPointer=null;
+
+        stick.style.left="50%";
+        stick.style.top="50%";
+
+      }
+
+    }
+  );
+
+}
+
+setupAimPad();
+
+/* =========================================================
+   KEYBOARD CONTROLS
+========================================================= */
+
+const keys={};
+
+window.addEventListener(
+  "keydown",
+  e=>{
+
+    keys[
+      e.key.toLowerCase()
+    ]=true;
+
+    /*
+      WASD
+    */
+
+    let x=0;
+    let y=0;
+
+    if(keys["a"]){
+      x-=1;
+    }
+
+    if(keys["d"]){
+      x+=1;
+    }
+
+    if(keys["w"]){
+      y-=1;
+    }
+
+    if(keys["s"]){
+      y+=1;
+    }
+
+    moveInput.x=x;
+    moveInput.y=y;
+
+    /*
+      SPACE = attack
+    */
+
+    if(
+      e.code==="Space"
+    ){
+
+      e.preventDefault();
+
+      attack();
+
+    }
+
+    /*
+      Q = next weapon
+    */
+
+    if(
+      e.key.toLowerCase()==="q"
+    ){
+
+      nextWeapon();
+
+    }
+
+  }
+);
+
+window.addEventListener(
+  "keyup",
+  e=>{
+
+    keys[
+      e.key.toLowerCase()
+    ]=false;
+
+    let x=0;
+    let y=0;
+
+    if(keys["a"]){
+      x-=1;
+    }
+
+    if(keys["d"]){
+      x+=1;
+    }
+
+    if(keys["w"]){
+      y-=1;
+    }
+
+    if(keys["s"]){
+      y+=1;
+    }
+
+    moveInput.x=x;
+    moveInput.y=y;
+
+  }
+);
+
+/* =========================================================
+   DESKTOP MOUSE AIM
+========================================================= */
+
+canvas.addEventListener(
+  "pointermove",
+  e=>{
+
+    /*
+      Only use mouse aiming when
+      not touching the controller.
+    */
+
+    if(
+      e.pointerType==="mouse" &&
+      gameRunning
+    ){
+
+      const rect=
+        canvas.getBoundingClientRect();
+
+      const mx=
+        e.clientX-
+        rect.left;
+
+      const my=
+        e.clientY-
+        rect.top;
+
+      setAimFromPoint(
+        mx,
+        my
+      );
+
+    }
+
+  }
+);
+
+canvas.addEventListener(
+  "pointerdown",
+  e=>{
+
+    if(
+      e.pointerType==="mouse" &&
+      gameRunning
+    ){
+
+      const rect=
+        canvas.getBoundingClientRect();
+
+      const mx=
+        e.clientX-
+        rect.left;
+
+      const my=
+        e.clientY-
+        rect.top;
+
+      setAimFromPoint(
+        mx,
+        my
+      );
+
+      attack();
+
+    }
+
+  }
+);
+
+/* =========================================================
+   INITIALIZE
+========================================================= */
+
+showScreen(
+  "opening"
+);
+
+/*
+  Make sure intro animation never blocks
+  the START button.
+*/
+
+setTimeout(
+  ()=>{
+    const intro=
+      $("openingTransition");
+
+    if(intro){
+      intro.style.pointerEvents=
+        "none";
+    }
+  },
+  100
+);
+
+</script>
+
+</body>
+</html>
